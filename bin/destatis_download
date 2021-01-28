@@ -9,7 +9,9 @@ green=`tput setaf 2`
 blue=`tput setaf 4`
 reset=`tput sgr0`
 
-URL='https://www-genesis.destatis.de/genesis/online?operation=ergebnistabelleDownload&levelindex=3&levelid=1611553958491&option=dcsv'
+# Download doe nit word with a session link.
+
+URL='https://www-genesis.destatis.de/genesis/online'
 
 SED="$(dirname $0)/sed"
 AWK="$(dirname $0)/awk"
@@ -19,6 +21,9 @@ TMP=$(mktemp)
 function fdownload {
 
     # Download CSV File if it does not exists
+    # -- Does not work with DESTATIS --
+    # -- Download files manually from the web-site
+    
     [ ! -e "$2" ] && curl --output "$2" --url "$1"
 
 

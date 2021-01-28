@@ -1,0 +1,60 @@
+#!/bin/bash
+
+DEBUG=OFF
+
+# Color for output
+
+red=`tput setaf 1`
+green=`tput setaf 2`
+blue=`tput setaf 4`
+reset=`tput sgr0`
+
+URL='https://www-genesis.destatis.de/genesis/online?operation=ergebnistabelleDownload&levelindex=3&levelid=1611553958491&option=dcsv'
+
+SED="$(dirname $0)/sed"
+AWK="$(dirname $0)/awk"
+DAT="$(dirname $0)/../data"
+TMP=$(mktemp)
+
+function fdownload {
+
+    # Download CSV File if it does not exists
+    [ ! -e "$2" ] && curl --output "$2" --url "$1"
+
+
+}
+
+function mksql {
+
+    # 12411-0013
+cat <<EOF
+USE DESTATIS;
+
+DROP TABLE IF EXISTS DT124110013;
+
+CREATE TABLE DT124110013 (
+    IdBundesland INT DEFAULT 1
+  , Geschlecht CHAR(1) DEFAULT 'M'
+  , Altersgruppe INT DEFAULT 0
+  , Anzahl BIGINT
+  , PRIMARY KEY (IdBundesland, Geschlecht, Altersgruppe)
+  );
+
+LOAD DATA LOCAL INFILE '$TMP' 
+    INTO TABLE DT124110013 
+    FIELDS TERMINATED BY ','
+    ENCLOSED BY '"'
+    IGNORE 2 ROWS;
+
+EOF
+    cat "$DAT/12411-0013.csv" \
+    | tr -d '\344' \
+    | sed --file "$SED/12411-0013.sed" \
+    | awk -F ';' --file "$AWK/12411-0013.awk" \
+    > "$TMP"
+
+}
+
+fdownload  "$URL" "$DAT/12411-0013.csv"
+
+mksql 

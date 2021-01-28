@@ -1,3 +1,10 @@
+# ODS Logs
+.~lock.*,ods
+.~*
+
+# Obsolet / old files
+*.old
+
 # History files
 .Rhistory
 .Rapp.history

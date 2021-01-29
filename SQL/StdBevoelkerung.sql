@@ -118,6 +118,20 @@ group by
     Geschlecht, Altersgruppe
 ;
 
+drop table if exists StdBev10 ;
+
+create table StdBev10 (
+      Altersgruppe INT DEFAULT 0 
+    , Anzahl BIGINT
+    , PRIMARY KEY( Altersgruppe ))
+select 
+      Altersgruppe as Altersgruppe
+    , sum(Anzahl) as Anzahl
+from DESTATIS.DT124110013
+group by 
+    Altersgruppe div 10 * 10
+;
+
 end
 
 //

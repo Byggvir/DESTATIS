@@ -1,0 +1,24 @@
+#!/bin/bash
+
+DEBUG=OFF
+
+# Color for output
+
+red=`tput setaf 1`
+green=`tput setaf 2`
+blue=`tput setaf 4`
+reset=`tput sgr0`
+
+function mksql {
+
+cat <<EOF
+
+CREATE DATABASE IF NOT EXISTS DESTATIS;
+GRANT ALL ON DESTATIS.* to 'rscript'@'localhost';
+
+EOF
+
+}
+
+
+mksql 

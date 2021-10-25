@@ -1,3 +1,6 @@
+# png
+png/*.png
+
 # ODS Logs
 .~lock.*,ods
 .~*

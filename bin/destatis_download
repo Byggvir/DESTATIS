@@ -9,14 +9,56 @@ green=`tput setaf 2`
 blue=`tput setaf 4`
 reset=`tput sgr0`
 
-# Download doe nit word with a session link.
+# Download with a session link.
 
 URL='https://www-genesis.destatis.de/genesis/online'
-
 SED="$(dirname $0)/sed"
 AWK="$(dirname $0)/awk"
 DAT="$(dirname $0)/../data"
-TMP=$(mktemp)
+#TMP=$(mktemp -d)
+TMP=/tmp
+
+function sonderauswertung {
+
+    ssconvert  -S --export-type=Gnumeric_stf:stf_csv \
+        "$HOME/Downloads/sonderauswertung-sterbefaelle.xlsx" "$TMP/sat_%n.csv"
+
+    ssconvert  -S --export-type=Gnumeric_stf:stf_csv \
+        "$DAT/sonderauswertung-sterbefaelle-endgueltige-daten.xlsx" "$TMP/sae_%n.csv"
+        
+    (
+    
+    sed --file "$SED/sonderauswertung.sed" "$TMP/sat_5.csv" \
+    | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="1"}'
+    
+    sed --file "$SED/sonderauswertung.sed" "$TMP/sat_6.csv" \
+    | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="2"}'
+    
+    sed --file "$SED/sonderauswertung.sed" "$TMP/sae_5.csv" \
+    | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="1"}'
+    
+    sed --file "$SED/sonderauswertung.sed" "$TMP/sae_6.csv" \
+    | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="2"}'
+
+    ) > "$TMP/SterbefaelleW.csv"
+
+    (
+
+    sed --file "$SED/sonderauswertung.sed" "$TMP/sat_8.csv" \
+    | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="1"}'
+    
+    sed --file "$SED/sonderauswertung.sed" "$TMP/sat_9.csv" \
+    | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="2"}'
+    
+    sed --file "$SED/sonderauswertung.sed" "$TMP/sae_8.csv" \
+    | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="1"}'
+    
+    sed --file "$SED/sonderauswertung.sed" "$TMP/sae_9.csv" \
+    | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="2"}'
+    
+    ) > "$TMP/SterbefaelleM.csv"
+    
+}
 
 function fdownload {
 
@@ -33,33 +75,39 @@ function mksql {
 
     # 12411-0013
 cat <<EOF
+
 USE DESTATIS;
 
-DROP TABLE IF EXISTS DT124110013;
+delete from DT124110006;
+delete from DT124110013;
 
-CREATE TABLE DT124110013 (
-    IdBundesland INT DEFAULT 1
-  , Geschlecht CHAR(1) DEFAULT 'M'
-  , Altersgruppe INT DEFAULT 0
-  , Anzahl BIGINT
-  , PRIMARY KEY (IdBundesland, Geschlecht, Altersgruppe)
-  );
+LOAD DATA LOCAL INFILE '$TMP/12411-0006.csv' 
+    INTO TABLE DT124110006 
+    FIELDS TERMINATED BY ';'
+    ENCLOSED BY '"'
+    IGNORE 0 ROWS;
 
-LOAD DATA LOCAL INFILE '$TMP' 
-    INTO TABLE DT124110013 
+LOAD DATA LOCAL INFILE '$TMP/12411-0013.csv' 
+    INTO TABLE DT124110013
     FIELDS TERMINATED BY ','
     ENCLOSED BY '"'
     IGNORE 2 ROWS;
 
 EOF
+    iconv -f ISO-8859-15 -t UTF-8 "$DAT/12411-0006.csv" \
+    | sed --file "$SED/12411-0006.sed" \
+    > "$TMP/12411-0006.csv"
+
     cat "$DAT/12411-0013.csv" \
     | tr -d '\344' \
     | sed --file "$SED/12411-0013.sed" \
     | awk -F ';' --file "$AWK/12411-0013.awk" \
-    > "$TMP"
+    > "$TMP/12411-0013.csv"
 
 }
 
-fdownload  "$URL" "$DAT/12411-0013.csv"
+# fdownload  "$URL" "$DAT/12411-0013.csv"
 
-mksql 
+sonderauswertung
+
+# mksql

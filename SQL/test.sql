@@ -1,4 +1,5 @@
 use DESTATIS;
+
 create or replace view OverMortality2021B as
 select 
     Kw, 
@@ -17,8 +18,8 @@ select
             , Geschlecht
             , 'A' as Hint
             , sum(Anzahl)/4 as Anzahl 
-        from SterbefaelleKw
-        where 
+        from SterbefaelleWoche
+        where
             Jahr > 2016 and Jahr < 2021 and AlterVon >= 60 
         group by 
             Kw, Geschlecht
@@ -28,7 +29,7 @@ select
             , Geschlecht
             , 'R' as Hint
             , sum(Anzahl) as Anzahl 
-        from SterbefaelleKw
+        from SterbefaelleWoche
         where
             Jahr=2021 and AlterVon >=60 
         group by Kw, Geschlecht

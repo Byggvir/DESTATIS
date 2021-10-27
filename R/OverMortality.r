@@ -83,7 +83,6 @@ Sterbefaelle %>% ggplot(
   geom_line( aes(y= Anzahl, colour= '2021')) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
   expand_limits(y = 0) +
-#  geom_bar(position="dodge", stat="identity") +
   facet_wrap(vars(Geschlecht)) +
   theme_ipsum() +
   labs(  title = paste("Über-/ Untersterblichkeit je Woche; Alter über 60 Jahre")
@@ -99,7 +98,7 @@ ggsave(paste('png/OverMortKwA', Alter[1], '-', Alter[2], '.png', sep='')
 )
 }
 
-SQL <- 'select distinct AlterVon,AlterBis from SterbeAG'
+SQL <- 'select distinct AlterVon,AlterBis from SterbeAGW'
 AG <- RunSQL(SQL)
 
 plotit (Alter = c(0,59))

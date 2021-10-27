@@ -102,6 +102,7 @@ from (
         , case when Geschlecht = 1 then Anzahl else 0 end as Male
         , case when Geschlecht = 2 then Anzahl else 0 end as Female
     from SMonat 
+    where Monat < 13
     ) as A 
 group by 
     Jahr

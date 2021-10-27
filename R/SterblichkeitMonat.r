@@ -1,14 +1,14 @@
 #!/usr/bin/env Rscript
 #
 #
-# Script: RKI.r
+# Script: SterblichkeitMonat.r
 #
-# Stand: 2020-10-21
+# Stand: 2021-10-21
 # (c) 2020 by Thomas Arend, Rheinbach
 # E-Mail: thomas@arend-rhb.de
 #
 
-MyScriptName <- "Ueberstreblichkeit"
+MyScriptName <- "SterblichkeitMonat"
 
 library(tidyverse)
 library(REST)
@@ -104,6 +104,7 @@ SQL <- 'select distinct AlterVon, AlterBis from SterbefaelleMonatBev;'
 AG <- RunSQL(SQL)
 
 plotit (Alter = c(0,59))
+plotit (Alter = c(0,100))
 plotit (Alter = c(60,100))
 
 for (i in 1:(nrow(AG))) {

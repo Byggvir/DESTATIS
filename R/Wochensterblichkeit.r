@@ -65,7 +65,10 @@ today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
 
 Alter <- c(0,120)
-SQL <- paste( 'select Jahr, Kw, AlterVon, Male/BevMale*1000 as Male, Female/BevFemale*1000 as Female from SterbefaelleWocheBev'
+SQL <- paste( 'select Jahr, Kw, AlterVon, Male/BevMale*100000 as Male' 
+  , ' , Female/BevFemale*100000 as Female '
+  , ' , (Male + Female)/(BevMale + BevFemale) * 100000 as FM '
+  , ' from SterbefaelleWocheBev'
   , 'where'
   , 'AlterVon >=', Alter[1]
   , 'and'
@@ -75,6 +78,8 @@ SQL <- paste( 'select Jahr, Kw, AlterVon, Male/BevMale*1000 as Male, Female/BevF
 )
 
 Sterbefaelle <- RunSQL( SQL )
+
+write.csv2(Sterbefaelle, file="data/WochenMortalitaet.csv")
 
 Sterbefaelle %>% ggplot(
   aes( x = AlterVon )) +
@@ -86,11 +91,11 @@ Sterbefaelle %>% ggplot(
 #  geom_bar(position="dodge", stat="identity") +
 # facet_wrap(vars(Woche)) +
   theme_ipsum() +
-  labs(  title = paste("Sterbefälle pro Woche pro 1.000 in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
+  labs(  title = paste("Sterbefälle pro Woche pro 100.000 in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
          , subtitle= paste("Deutschland, Stand:", heute)
          , colour  = "Geschlecht"
          , x = "Woche"
-         , y = "Anzahl [1/(Woche*1000)]"
+         , y = "Anzahl [1/(Woche*100.000)]"
          , caption = citation ) +
 #  scale_x_continuous(breaks=1:12,labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp6

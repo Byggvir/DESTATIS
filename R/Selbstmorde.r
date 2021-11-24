@@ -52,7 +52,10 @@ source("R/lib/myfunctions.r")
 source("R/lib/sql.r")
 source("R/lib/color_palettes.r")
 
-citation <- "© Thomas Arend, 2021\nQuelle: © Statistisches Bundesamt (Destatis), 2021\nStand 07.10.2021"
+today <- Sys.Date()
+heute <- format(today, "%d %b %Y")
+
+citation <- paste('© Thomas Arend, 2021\nQuelle: © Statistisches Bundesamt (Destatis), 2021\nTabelle 23211-0006\nStand', heute)
 
 options( 
   digits = 7
@@ -61,31 +64,27 @@ options(
   , max.print = 3000
 )
 
-today <- Sys.Date()
-heute <- format(today, "%d %b %Y")
+SQL <- paste( 'select * from DT232110002;', sep = ' ')
 
-SQL <- 'select Jahr, Monat, AlterVon, Male/BevMale*1000 as Male, Female/BevFemale*1000 as Female from SterbefaelleMonatBev where Jahr > 2015;'
+Selbstmorde <- RunSQL( SQL )
 
-Sterbefaelle <- RunSQL( SQL )
-
-Sterbefaelle %>% ggplot(
-  aes( x = AlterVon )) +
-  geom_point( aes( y = Male, colour = 'Männer' ) ) +
-  geom_point( aes( y = Female, colour= 'Frauen' ) ) +
-  # geom_smooth( aes( y = Male )) +
-  # geom_smooth( aes( y = Female )) +
-  facet_wrap(vars(Jahr)) +
+Selbstmorde %>% ggplot(
+  aes( x = Jahr ) ) +
+  geom_line( aes( y = Male, colour = 'Männer' ) ) +
+  geom_line( aes( y = Female, colour= 'Frauen' ) ) +
+  geom_smooth( aes( y = Male )) +
+  geom_smooth( aes( y = Female )) +
+  expand_limits(y = 0) +
   theme_ipsum() +
-  labs(  title = paste("Sterbefälle pro Monat pro 1.000")
+  labs(  title = paste('Sebstmorde pro Jahr und Geschlecht')
          , subtitle= paste("Deutschland, Stand:", heute)
          , colour  = "Geschlecht"
-         , x = "Alter"
-         , y = "Anzahl [1/(Monat*1000)]"
+         , x = "Jahr"
+         , y = "Anzahl [Personen]"
          , caption = citation ) +
-#  scale_x_continuous(breaks=1:12,labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp6
 
-ggsave(paste('png/MonatsSterblichkeit','.png', sep='')
+ggsave(paste('png/Selbstmorde', '.png', sep='')
        , type = "cairo-png",  bg = "white"
        , width = 29.7, height = 21, units = "cm", dpi = 300
 )

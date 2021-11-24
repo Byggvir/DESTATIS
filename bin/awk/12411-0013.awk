@@ -5,6 +5,7 @@ BEGIN {
     i = 1 ;
     AG = -1;
     NL = "NEWAG";
+    DATUM=""
     BL[1]=8;
     BL[2]=9;
     BL[3]=11;
@@ -24,12 +25,17 @@ BEGIN {
 }
 {
     if ( $1 == "NEWAG" ) {
-        AG = AG + 1 ;
+        if ( DATUM == $2 ) {
+            AG = AG + 1 ;
+        } else {
+            DATUM = $2 ;
+            AG = 0;
+        }
         i = 1;
     } else {
         if ( AG < 91) {
-            print ( BL[i] ",M," AG "," $1 ) ;
-            print ( BL[i] ",W," AG "," $2 ) ;
+            print ( DATUM "," BL[i] ",M," AG "," $1 ) ;
+            print ( DATUM "," BL[i] ",W," AG "," $2 ) ;
 #            print ( BL[i] ",b," AG "," $3 ) ;
         }
         i = i + 1 ;

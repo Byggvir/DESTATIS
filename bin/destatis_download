@@ -4,10 +4,10 @@ DEBUG=OFF
 
 # Color for output
 
-red=`tput setaf 1`
-green=`tput setaf 2`
-blue=`tput setaf 4`
-reset=`tput sgr0`
+red=$(tput setaf 1)
+green=$(tput setaf 2)
+blue=$(tput setaf 4)
+reset=$(tput sgr0)
 
 # Download with a session link.
 
@@ -73,13 +73,24 @@ function fdownload {
 
 function mksql {
 
-    # 12411-0013
+# 12411-0006 und 12411-0013
+
 cat <<EOF
 
 USE DESTATIS;
 
 delete from DT124110006;
-delete from DT124110013;
+
+drop table if exists DT124110013;
+
+CREATE TABLE DT124110013 (
+  Stichtag date NOT NULL,
+  IdBundesland int(11) NOT NULL DEFAULT 1,
+  Geschlecht char(1) NOT NULL DEFAULT 'M',
+  Altersgruppe int(11) NOT NULL DEFAULT 0,
+  Anzahl bigint(20) DEFAULT NULL,
+  PRIMARY KEY ( Stichtag,IdBundesland,Geschlecht,Altersgruppe)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 LOAD DATA LOCAL INFILE '$TMP/12411-0006.csv' 
     INTO TABLE DT124110006 
@@ -89,9 +100,10 @@ LOAD DATA LOCAL INFILE '$TMP/12411-0006.csv'
 
 LOAD DATA LOCAL INFILE '$TMP/12411-0013.csv' 
     INTO TABLE DT124110013
+    
     FIELDS TERMINATED BY ','
     ENCLOSED BY '"'
-    IGNORE 2 ROWS;
+    IGNORE 0 ROWS;
 
 EOF
     iconv -f ISO-8859-15 -t UTF-8 "$DAT/12411-0006.csv" \
@@ -110,4 +122,4 @@ EOF
 
 sonderauswertung
 
-# mksql
+mksql

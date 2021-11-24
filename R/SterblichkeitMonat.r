@@ -98,6 +98,35 @@ ggsave(paste('png/SterblichkeitM_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
        , type = "cairo-png",  bg = "white"
        , width = 29.7, height = 21, units = "cm", dpi = 300
 )
+
+data <- data.frame(
+  Jahr = c(Sterbefaelle$Jahr,Sterbefaelle$Jahr)
+  , Monat = c(Sterbefaelle$Monat,Sterbefaelle$Monat)
+  , Fall = c(Sterbefaelle$Male,Sterbefaelle$Female)
+  , Bev = c(Sterbefaelle$BevMale,Sterbefaelle$BevFemale)
+  , Geschlecht = rep(c('Männer','Frauen'),nrow(Sterbefaelle))
+)
+
+data %>% ggplot(
+  aes( x = Monat, y= Fall / Bev * 1000000, fill=Geschlecht )) +
+  geom_bar(position='dodge', stat = 'identity') +
+  expand_limits(y = 0) +
+  facet_wrap(vars(Jahr)) +
+  theme_ipsum() +
+  labs(  title = paste("Sterbefälle pro 1 Mio im Monat in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
+         , subtitle= paste("Deutschland, Stand:", heute)
+         , colour  = "Geschlecht"
+         , x ="Monat"
+         , y = "Anzahl pro 1 Mio"
+         , caption = citation ) +
+  scale_x_continuous(breaks=1:12,minor_breaks = seq(1, 12, 1),labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
+  scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
+
+ggsave(paste('png/SterblichkeitMB_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
+       , type = "cairo-png",  bg = "white"
+       , width = 29.7, height = 21, units = "cm", dpi = 300
+)
+
 }
 
 SQL <- 'select distinct AlterVon, AlterBis from SterbefaelleMonatBev;'

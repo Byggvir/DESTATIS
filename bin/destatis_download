@@ -11,7 +11,7 @@ reset=$(tput sgr0)
 
 # Download with a session link.
 
-URL='https://www-genesis.destatis.de/genesis/online'
+URL='https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Bevoelkerung/Sterbefaelle-Lebenserwartung/Tabellen/sonderauswertung-sterbefaelle.xlsx?__blob=publicationFile'
 SED="$(dirname $0)/sed"
 AWK="$(dirname $0)/awk"
 DAT="$(dirname $0)/../data"
@@ -57,6 +57,14 @@ function sonderauswertung {
     | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="2"}'
     
     ) > "$TMP/SterbefaelleM.csv"
+    
+    (
+    sed --file "$SED/sonderauswertung-tage.sed" "$TMP/sat_3.csv" \
+    | awk -F ';' -f "$AWK/sonderauswertung-tage.awk"
+    
+    sed --file "$SED/sonderauswertung-tage.sed" "$TMP/sae_3.csv" \
+    | awk -F ';' -f "$AWK/sonderauswertung-tage.awk" 
+    ) > "$TMP/SterbefaelleT.csv"
     
 }
 
@@ -118,7 +126,7 @@ EOF
 
 }
 
-# fdownload  "$URL" "$DAT/12411-0013.csv"
+fdownload  "$URL" "$HOME/Downloads/sonderauswertung-sterbefaelle.xlsx"
 
 sonderauswertung
 

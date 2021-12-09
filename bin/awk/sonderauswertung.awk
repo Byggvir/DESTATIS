@@ -14,7 +14,7 @@ BEGIN {
     if ( $1 == "Jahr" ) {
 
         # Neues Jahr beginnt
-        # In der MySQL Datenbakn ist das AlterBis einschließlich, 
+        # In der MySQL Datenbank ist das AlterBis einschließlich, 
         # nicht wie in der Sonderauswertung ausschließlich.
         
         j = $2 ; # Jahreszahl steht an Stelle 1 
@@ -24,7 +24,7 @@ BEGIN {
     }
     else {
         
-        # Zeile enthält nur den Wert für eine Monat / eine Kalenderwoche
+        # Zeile enthält nur den Wert für einen Monat / eine Kalenderwoche
         
         # Ausgabe für den Import aus einer CSV Datei
         # In der MySQL Datenbakn ist das AlterBis einschließlich, 

@@ -2,6 +2,37 @@ use DESTATIS;
 
 -- Initialisieren der Tabelle mit den Sterbefällen pro Woche
 
+drop table if exists SterbefaelleTag ;
+drop table if exists STag ;
+
+create temporary table STag (
+      Jahr INT DEFAULT 2021
+    , Tag INT DEFAULT 1
+    , Anzahl BIGINT DEFAULT 0
+    , PRIMARY KEY (Jahr, Tag)
+    ) ;
+
+LOAD DATA LOCAL 
+INFILE '/tmp/SterbefaelleT.csv'      
+INTO TABLE STag
+FIELDS TERMINATED BY ','
+IGNORE 0 ROWS;
+
+create table SterbefaelleTag (
+      Datum DATE
+    , Jahr INT DEFAULT 2021
+    , Tag INT DEFAULT 0
+    , Anzahl BIGINT DEFAULT 0
+    , PRIMARY KEY (Datum)
+    )
+    
+select 
+    adddate(concat(Jahr,'-01-01'),Tag) as Datum
+    , Jahr as Jahr
+    , Tag as Tag
+    , Anzahl as Anzahl
+from  STag; 
+
 drop table if exists SterbefaelleWoche ;
 drop table if exists SWoche ;
 

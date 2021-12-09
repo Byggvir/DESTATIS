@@ -209,14 +209,14 @@ MT %>% ggplot(
   expand_limits( y = 0) + 
   theme_ipsum() +
   labs(  title = paste('Mortality during a vaccination campaign with priority based on age')
-         , subtitle= paste('Simulation, ', heute)
+         , subtitle= paste('Simulation, Priority older ', prio, 'to younger', (1-prio))
          , colour  = 'Mortality'
          , x = 'Kw'
          , y = 'Mortalität 1/100000'
          , caption = citation ) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
 
-ggsave(paste('png/Altersverzerrung.png', sep='')
+ggsave(paste('png/Altersverzerrung-Prio',prio*10,'.png', sep='')
        , type = "cairo-png",  bg = "white"
        , width = 29.7, height = 21, units = "cm", dpi = 300
 )

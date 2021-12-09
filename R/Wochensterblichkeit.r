@@ -64,32 +64,76 @@ options(
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
 
-Alter <- c(0,120)
-SQL <- paste( 'select Jahr, Kw, AlterVon, Male/BevMale*100000 as Male' 
-  , ' , Female/BevFemale*100000 as Female '
-  , ' , (Male + Female)/(BevMale + BevFemale) * 100000 as FM '
-  , ' from SterbefaelleWocheBev'
+Alter <- c(80,100)
+
+SQL1 <- paste( 
+    'select Jahr, Kw, concat("A",AlterVon,"-A",AlterBis) as AG, "männlich" as Geschlecht'
+  , ', Male/BevMale*100000 as Mortality' 
+  , 'from SterbefaelleWocheBev'
   , 'where'
   , 'AlterVon >=', Alter[1]
   , 'and'
   , 'AlterBis <=', Alter[2]
   , 'and Jahr > 2015'
+  , 'union'
+  , 'select Jahr, Kw, concat("A",AlterVon,"-A",AlterBis) as AG, "weiblich" as Geschlecht'
+  , ' , Female/BevFemale*100000 as Mortaliyt'
+  , 'from SterbefaelleWocheBev'
+  , 'where'
+  , 'AlterVon >=', Alter[1]
+  , 'and'
+  , 'AlterBis <=', Alter[2]
+  , 'and Jahr > 2015'
+  , 'union'
+  , 'select Jahr, Kw, concat("A",AlterVon,"-A",AlterBis) as AG, "beide" as Geschlecht'
+  , ' , (Male + Female)/(BevMale + BevFemale) * 100000 as Mortality'
+  , 'from SterbefaelleWocheBev'
+  , 'where'
+  , 'AlterVon >=', Alter[1]
+  , 'and'
+  , 'AlterBis <=', Alter[2]
+  , 'and Jahr > 2015'
+  , 'union'
+  , 'select Jahr, Kw, "All" as AG, "männlich" as Geschlecht'
+  , ' , sum((Male))/sum((BevMale)) * 100000 as Mortality'
+  , 'from SterbefaelleWocheBev'
+  , 'where'
+  , 'AlterVon >=', Alter[1]
+  , 'and'
+  , 'AlterBis <=', Alter[2]
+  , 'and Jahr > 2015'
+  , 'group by Jahr, Kw'
+  , 'union'
+  , 'select Jahr, Kw, "All" as AG, "weiblich" as Geschlecht'
+  , ' , sum((Female))/sum((BevFemale)) * 100000 as Mortality'
+  , 'from SterbefaelleWocheBev'
+  , 'where'
+  , 'AlterVon >=', Alter[1]
+  , 'and'
+  , 'AlterBis <=', Alter[2]
+  , 'and Jahr > 2015'
+  , 'group by Jahr, Kw'
+  , 'union'
+  , 'select Jahr, Kw, "All" as AG, "beide" as Geschlecht'
+  , ' , sum((Male + Female))/sum((BevMale + BevFemale)) * 100000 as Mortality'
+  , 'from SterbefaelleWocheBev'
+  , 'where'
+  , 'AlterVon >=', Alter[1]
+  , 'and'
+  , 'AlterBis <=', Alter[2]
+  , 'and Jahr > 2015'
+  , 'group by Jahr, Kw'
   ,';'
 )
 
-Sterbefaelle <- RunSQL( SQL )
-
-write.csv2(Sterbefaelle, file="data/WochenMortalitaet.csv")
+Sterbefaelle <- RunSQL( SQL1 )
 
 Sterbefaelle %>% ggplot(
-  aes( x = AlterVon )) +
-  geom_point( aes( y = Male, colour = 'Männer' ) ) +
-  geom_point( aes( y = Female, colour= 'Frauen' ) ) +
-# geom_smooth( aes( y = Male )) +
-# geom_smooth( aes( y = Female )) +
-#  expand_limits(y = 0) +
-#  geom_bar(position="dodge", stat="identity") +
-# facet_wrap(vars(Woche)) +
+  aes( x = AG, y = Mortality, colour=Geschlecht)) +
+  geom_boxplot() +
+  expand_limits( y = 0 ) +
+  scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
+  facet_wrap(vars(Geschlecht),nrow=3) +
   theme_ipsum() +
   labs(  title = paste("Sterbefälle pro Woche pro 100.000 in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
          , subtitle= paste("Deutschland, Stand:", heute)
@@ -98,7 +142,6 @@ Sterbefaelle %>% ggplot(
          , y = "Anzahl [1/(Woche*100.000)]"
          , caption = citation ) +
 #  scale_x_continuous(breaks=1:12,labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
-  scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp6
 
 ggsave(paste('png/WochenSterblichkeit_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
        , type = "cairo-png",  bg = "white"

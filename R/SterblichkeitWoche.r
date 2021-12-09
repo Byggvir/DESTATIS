@@ -71,7 +71,7 @@ SQL <- paste( 'select Jahr, Kw, sum(Male) as Male, sum(Female) as Female , sum(B
   , 'AlterVon >=', Alter[1]
   , 'and'
   , 'AlterBis <=', Alter[2]
-  , 'and Jahr > 2015'
+  , 'and Jahr > 2019'
   , 'group by Jahr, Kw;'
 )
 

@@ -1,14 +1,14 @@
 #!/usr/bin/env Rscript
 #
 #
-# Script: RKI.r
+# Script: Verkehrstote.r
 #
-# Stand: 2020-10-21
+# Stand: 2022-11-23
 # (c) 2020 by Thomas Arend, Rheinbach
 # E-Mail: thomas@arend-rhb.de
 #
 
-MyScriptName <- "Ueberstreblichkeit"
+MyScriptName <- "Verkehrstote"
 
 library(tidyverse)
 library(REST)
@@ -68,7 +68,7 @@ options(
 
 
 url <- "https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Verkehrsunfaelle/Tabellen/getoetete-alter.html"
-verkehrstote <- htmltab(doc = url)
+verkehrstote <- htmltab(doc = url, which = 1)
 write_ods(
   x = verkehrstote,
   path = '/tmp/verkehrstote2.ods',

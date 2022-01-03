@@ -130,4 +130,4 @@ fdownload  "$URL" "$HOME/Downloads/sonderauswertung-sterbefaelle.xlsx"
 
 sonderauswertung
 
-mksql
+#mksql

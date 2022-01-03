@@ -71,13 +71,12 @@ SQL <- paste( 'select Jahr, Kw, sum(Male) as Male, sum(Female) as Female , sum(B
   , 'AlterVon >=', Alter[1]
   , 'and'
   , 'AlterBis <=', Alter[2]
-  , 'and Jahr > 2019'
   , 'group by Jahr, Kw;'
 )
 
 Sterbefaelle <- RunSQL( SQL )
 
-Sterbefaelle %>% ggplot(
+Sterbefaelle %>% filter(Jahr >= 2010) %>% ggplot(
   aes( x = Kw )) +
   geom_line( aes(y= Male/BevMale * 1000000, colour = 'Männer')) +
   geom_line( aes(y= Female/BevFemale*1000000, colour= 'Frauen')) +
@@ -100,15 +99,15 @@ ggsave(paste('png/SterblichkeitW_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
 )
 }
 
-
 SQL <- 'select distinct AlterVon, AlterBis from SterbefaelleWocheBev;'
 AG <- RunSQL(SQL)
-
 
 plotit (Alter = c(0,59))
 plotit (Alter = c(0,100))
 plotit (Alter = c(60,100))
 
 for (i in 1:nrow(AG)) {
+  
   plotit(Alter=AG[i,])
+
 }

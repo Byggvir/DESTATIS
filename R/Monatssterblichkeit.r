@@ -20,7 +20,7 @@ library(ggplot2)
 library(viridis)
 library(hrbrthemes)
 library(scales)
-library(Cairo)
+library(ragg)
 
 # library(extrafont)
 # extrafont::loadfonts()
@@ -85,7 +85,9 @@ Sterbefaelle %>% ggplot(
 #  scale_x_continuous(breaks=1:12,labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp6
 
-ggsave(paste('png/MonatsSterblichkeit','.png', sep='')
-       , type = "cairo-png",  bg = "white"
-       , width = 29.7, height = 21, units = "cm", dpi = 300
+ggsave(  paste('png/MonatsSterblichkeit','.png', sep='')
+         , device = "png"
+         , bg = "white"
+         , width = 3840, height = 2160
+         , units = "px"
 )

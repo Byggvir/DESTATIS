@@ -10,7 +10,8 @@ library(ggplot2)
 library(viridis)
 library(hrbrthemes)
 library(scales)
-library(Cairo)
+library(ragg)
+
 # library(extrafont)
 # extrafont::loadfonts()
 
@@ -65,8 +66,10 @@ germany %>% ggplot(
            , caption = citation ) -> pp
 
 ggsave("png/DEPopulationAge.png"
-       , type = "cairo-png",  bg = "white"
-       , width = 29.7, height = 21, units = "cm", dpi = 150
+       , device = "png"
+       , bg = "white"
+       , width = 1920, height = 1080
+       , units = "px"
 )
 
 SQL <- 'select year(Stichtag) as Jahr, `Alter` , Male as Male, Female as Female from DT124110006 where `Alter` >= 80 and `Alter` < 85 and Stichtag >= "2015-12-31";'
@@ -87,6 +90,8 @@ germany_alter %>% ggplot(
            , caption = citation ) -> pp
 
 ggsave("png/DEPopulationAge2.png"
-       , type = "cairo-png",  bg = "white"
-       , width = 29.7, height = 21, units = "cm", dpi = 150
+       , device = "png"
+       , bg = "white"
+       , width = 3840, height = 2160
+       , units = "px"
 )

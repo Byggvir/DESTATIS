@@ -20,7 +20,7 @@ library(ggplot2)
 library(viridis)
 library(hrbrthemes)
 library(scales)
-library(Cairo)
+library(ragg)
 
 # library(extrafont)
 # extrafont::loadfonts()
@@ -140,10 +140,12 @@ Sterbefaelle %>% ggplot(
          , colour  = "Geschlecht"
          , x = "Woche"
          , y = "Anzahl [1/(Woche*100.000)]"
-         , caption = citation ) +
+         , caption = citation )
 #  scale_x_continuous(breaks=1:12,labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
 
 ggsave(paste('png/WochenSterblichkeit_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
-       , type = "cairo-png",  bg = "white"
-       , width = 29.7, height = 21, units = "cm", dpi = 300
+       , device = "png"
+       , bg = "white"
+       , width = 3840, height = 2160
+       , units = "px"
 )

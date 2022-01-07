@@ -20,7 +20,7 @@ library(ggplot2)
 library(viridis)
 library(hrbrthemes)
 library(scales)
-library(Cairo)
+library(ragg)
 
 # library(extrafont)
 # extrafont::loadfonts()
@@ -93,8 +93,10 @@ Sterbefaelle %>% ggplot(
          , caption = citation ) -> pp6
 
 ggsave(paste('png/OverMortKwA', Alter[1], '-', Alter[2], '.png', sep='')
-       , type = "cairo-png",  bg = "white"
-       , width = 29.7, height = 21, units = "cm", dpi = 300
+       , device = "png"
+       , bg = "white"
+       , width = 3840, height = 2160
+       , units = "px"
 )
 }
 

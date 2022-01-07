@@ -66,35 +66,56 @@ heute <- format(today, "%d %b %Y")
 
 plotit <- function (Alter =c(60,120) ) { 
 
-SQL <- paste( 'select Jahr, Monat, sum(Male) as Male, sum(Female) as Female , sum(BevMale) as BevMale, sum(BevFemale) as BevFemale from SterbefaelleMonatBev'
+SQL <- paste( 'select Jahr, sum(Male) as Male, sum(Female) as Female , sum(BevMale) as BevMale, sum(BevFemale) as BevFemale from SterbefaelleMonatBev'
   , 'where'
   , 'AlterVon >=', Alter[1]
   , 'and'
   , 'AlterBis <=', Alter[2]
-  , 'and Jahr > 2015'
-  ,'group by Jahr, Monat;'
+  ,'group by Jahr;'
 )
 
 Sterbefaelle <- RunSQL( SQL )
 
-
 Sterbefaelle %>% ggplot(
-  aes( x = Monat )) +
+  aes( x = Jahr )) +
   geom_line( aes(y= Male/BevMale * 1000000, colour = 'Männer')) +
   geom_line( aes(y= Female/BevFemale * 1000000, colour= 'Frauen')) +
   expand_limits(y = 0) +
-  facet_wrap(vars(Jahr)) +
   theme_ipsum() +
-  labs(  title = paste("Sterbefälle pro 1 Mio im Monat in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
+  labs(  title = paste("Sterbefälle pro 1 Mio im Jahr in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
          , subtitle= paste("Deutschland, Stand:", heute)
          , colour  = "Geschlecht"
-         , x ="Monat"
+         , x ="Jahr"
          , y = "Anzahl pro 1 Mio"
          , caption = citation ) +
-  scale_x_continuous(breaks=1:12,minor_breaks = seq(1, 12, 1),labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
+  scale_x_continuous(minor_breaks = 1) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
 
-ggsave(paste('png/SterblichkeitM_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
+ggsave(paste('png/SterblichkeitJ_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
+       , device = "png"
+       , bg = "white"
+       , width = 3840, height = 2160
+       , units = "px"
+)
+
+Sterbefaelle %>% ggplot(
+  aes( x = Jahr )) +
+  geom_line( aes( y= Male, colour = 'Männer')) +
+  geom_line( aes( y= Female, colour= 'Frauen')) +
+  geom_smooth(aes( y= Male, colour = 'Männer'), method= 'lm' ) +
+  geom_smooth(aes( y= Female, colour = 'Frauen') ,method= 'lm' ) +
+  expand_limits(y = 0) +
+  theme_ipsum() +
+  labs(  title = paste("Sterbefälle im Jahr in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
+         , subtitle= paste("Deutschland, Stand:", heute)
+         , colour  = "Geschlecht"
+         , x ="Jahr"
+         , y = "Anzahl"
+         , caption = citation ) +
+  scale_x_continuous(minor_breaks = 1) +
+  scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
+
+ggsave(paste('png/SterblichkeitJS_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
        , device = "png"
        , bg = "white"
        , width = 3840, height = 2160
@@ -103,28 +124,26 @@ ggsave(paste('png/SterblichkeitM_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
 
 data <- data.frame(
   Jahr = c(Sterbefaelle$Jahr,Sterbefaelle$Jahr)
-  , Monat = c(Sterbefaelle$Monat,Sterbefaelle$Monat)
   , Fall = c(Sterbefaelle$Male,Sterbefaelle$Female)
   , Bev = c(Sterbefaelle$BevMale,Sterbefaelle$BevFemale)
   , Geschlecht = rep(c('Männer','Frauen'),nrow(Sterbefaelle))
 )
 
 data %>% ggplot(
-  aes( x = Monat, y= Fall / Bev * 1000000, fill=Geschlecht )) +
+  aes( x = Jahr, y= Fall / Bev * 1000000, fill=Geschlecht )) +
   geom_bar(position='dodge', stat = 'identity') +
   expand_limits(y = 0) +
-  facet_wrap(vars(Jahr)) +
   theme_ipsum() +
-  labs(  title = paste("Sterbefälle pro 1 Mio im Monat in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
+  labs(  title = paste("Sterbefälle pro 1 Mio im Jahr in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
          , subtitle= paste("Deutschland, Stand:", heute)
          , colour  = "Geschlecht"
-         , x ="Monat"
+         , x ="Jahr"
          , y = "Anzahl pro 1 Mio"
          , caption = citation ) +
-  scale_x_continuous(breaks=1:12,minor_breaks = seq(1, 12, 1),labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
+#  scale_x_continuous(breaks=1:12,minor_breaks = seq(1, 12, 1),labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
 
-ggsave(paste('png/SterblichkeitMB_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
+ggsave(paste('png/SterblichkeitJB_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
        , device = "png"
        , bg = "white"
        , width = 3840, height = 2160
@@ -141,8 +160,7 @@ plotit (Alter = c(0,100))
 plotit (Alter = c(60,100))
 
 for (i in 1:(nrow(AG))) {
-  
+
   plotit(Alter=AG[i,])
 
 }
-

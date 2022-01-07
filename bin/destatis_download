@@ -11,7 +11,8 @@ reset=$(tput sgr0)
 
 # Download with a session link.
 
-URL='https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Bevoelkerung/Sterbefaelle-Lebenserwartung/Tabellen/sonderauswertung-sterbefaelle.xlsx?__blob=publicationFile'
+URL1='https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Bevoelkerung/Sterbefaelle-Lebenserwartung/Tabellen/sonderauswertung-sterbefaelle.xlsx?__blob=publicationFile'
+URL2='https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Bevoelkerung/Sterbefaelle-Lebenserwartung/Tabellen/sonderauswertung-sterbefaelle-endgueltige-daten.xlsx?__blob=publicationFile'
 SED="$(dirname $0)/sed"
 AWK="$(dirname $0)/awk"
 DAT="$(dirname $0)/../data"
@@ -50,10 +51,10 @@ function sonderauswertung {
     sed --file "$SED/sonderauswertung.sed" "$TMP/sat_9.csv" \
     | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="2"}'
     
-    sed --file "$SED/sonderauswertung.sed" "$TMP/sae_8.csv" \
+    sed --file "$SED/sonderauswertung_endgueltig.sed" "$TMP/sae_8.csv" \
     | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="1"}'
     
-    sed --file "$SED/sonderauswertung.sed" "$TMP/sae_9.csv" \
+    sed --file "$SED/sonderauswertung_endgueltig.sed" "$TMP/sae_9.csv" \
     | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="2"}'
     
     ) > "$TMP/SterbefaelleM.csv"
@@ -126,7 +127,8 @@ EOF
 
 }
 
-fdownload  "$URL" "$HOME/Downloads/sonderauswertung-sterbefaelle.xlsx"
+fdownload  "$URL1" "$HOME/Downloads/sonderauswertung-sterbefaelle.xlsx"
+fdownload  "$URL2" "$HOME/Downloads/sonderauswertung-sterbefaelle.xlsx"
 
 sonderauswertung
 

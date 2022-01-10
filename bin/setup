@@ -29,7 +29,7 @@ TMP=$(mktemp -d)
 # Replace 'eelaeZuK4ohGoh7Z' with a different password
 PASSWORD='eelaeZuK4ohGoh7Z'
 
-function create_databse {
+function create_database {
 echo "To create the database the password for root is required"
 
 (
@@ -46,7 +46,7 @@ EOF
 # Import tables from data folder 
 #
 
-for TAB in 12411-0006 12411-0013 23211-0002 23211-0004
+for TAB in 12411-0006 12411-0013 23211-0002 23211-0004 23211-0004-2020
 do
 
     sed -f "${SED}/${TAB}.sed" "${DAT}/${TAB}.csv" \
@@ -61,11 +61,6 @@ cat "${SQL}/StdBevoelkerung.sql" "${SQL}/views.sql" \
 | mysql --user=DESTATIS --password="${PASSWORD}"
 
 }
-
-
-
-. "$(dirname $0)/destatis_download"
-    cat "${SQL}/Sonderauswertun.sql" mysql --user=DESTATIS --password="${PASSWORD}"
 
 #
 # The following command must be executed as super user
@@ -96,6 +91,14 @@ sudo apt install \
 #
 
 debian_packages
+create_database
+
+#
+# Download DESTATIS 'Sonderauswertung Corona'
+#
+
+. "$(dirname $0)/destatis_download"
+cat "${SQL}/Sonderauswertung.sql" | mysql --user=DESTATIS --password="${PASSWORD}"
 
 #sudo /usr/bin/r < "${R}/setup.r"
-#sudo /usr/bin/r < "${R}/update.r"
+# sudo /usr/bin/r < "${R}/update.r"

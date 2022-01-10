@@ -41,7 +41,7 @@ function sonderauswertung {
     sed --file "${SED}/sonderauswertung.sed" "${TMP}/sae_6.csv" \
     | awk -F ';' -f "${AWK}/sonderauswertung.awk" -e 'BEGIN {s="2"}'
 
-    ) > "${TMP}/SterbefaelleW.csv"
+    ) > "/tmp/SterbefaelleW.csv"
 
     (
 
@@ -57,7 +57,7 @@ function sonderauswertung {
     sed --file "${SED}/sonderauswertung_endgueltig.sed" "${TMP}/sae_9.csv" \
     | awk -F ';' -f "${AWK}/sonderauswertung.awk" -e 'BEGIN {s="2"}'
     
-    ) > "${TMP}/SterbefaelleM.csv"
+    ) > "/tmp/SterbefaelleM.csv"
     
     (
     sed --file "${SED}/sonderauswertung-tage.sed" "${TMP}/sat_3.csv" \
@@ -65,7 +65,7 @@ function sonderauswertung {
     
     sed --file "${SED}/sonderauswertung-tage.sed" "${TMP}/sae_3.csv" \
     | awk -F ';' -f "${AWK}/sonderauswertung-tage.awk" 
-    ) > "${TMP}/SterbefaelleT.csv"
+    ) > "/tmp/SterbefaelleT.csv"
     
 }
 

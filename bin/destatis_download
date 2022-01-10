@@ -9,7 +9,7 @@ green=$(tput setaf 2)
 blue=$(tput setaf 4)
 reset=$(tput sgr0)
 
-# Download with a session link.
+# Download URL
 
 URL1='https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Bevoelkerung/Sterbefaelle-Lebenserwartung/Tabellen/sonderauswertung-sterbefaelle.xlsx?__blob=publicationFile'
 URL2='https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Bevoelkerung/Sterbefaelle-Lebenserwartung/Tabellen/sonderauswertung-sterbefaelle-endgueltige-daten.xlsx?__blob=publicationFile'
@@ -17,12 +17,12 @@ URL2='https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Bevoelkerung/Sterbef
 SED="$(dirname $0)/sed"
 AWK="$(dirname $0)/awk"
 DAT="$(dirname $0)/../data"
-#TMP=$(mktemp -d)
+TMP=$(mktemp -d)
 
 function sonderauswertung {
 
     ssconvert  -S --export-type=Gnumeric_stf:stf_csv \
-        "${DAT}/Downloads/sonderauswertung-sterbefaelle.xlsx" "${TMP}/sat_%n.csv"
+        "${DAT}/sonderauswertung-sterbefaelle.xlsx" "${TMP}/sat_%n.csv"
 
     ssconvert  -S --export-type=Gnumeric_stf:stf_csv \
         "${DAT}/sonderauswertung-sterbefaelle-endgueltige-daten.xlsx" "${TMP}/sae_%n.csv"

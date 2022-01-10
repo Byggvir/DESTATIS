@@ -110,4 +110,15 @@ Suizide2020$Jahr <- 2020
 Suizide2020$AlterVon <- c(0,as.integer(gsub(' bis.*','', Suizide2020$Altergruppe[2:(nrow(Suizide2020)-1)])),90)
 Suizide2020$AlterBis <- c(0,as.integer(gsub('.*bis ','', Suizide2020$Altergruppe[2:(nrow(Suizide2020)-1)])) - 1,100)
 
-write.csv(Suizide2020[,c(5,6,7,3,4)],file = paste( 'data/Suizide2020_', format( today, "%Y%m%d" ), '.csv',sep=''))
+Suizide2020$AlterBis[nrow(Suizide2020)-1] <- 100
+Suizide2020$AlterBis[1] <- 0
+Suizide2020$AlterVon[2] <- 1
+
+Suizide2020$Male[nrow(Suizide2020)-1] <- Suizide2020$Male[nrow(Suizide2020)-1] + Suizide2020$Male[nrow(Suizide2020)]
+Suizide2020$Female[nrow(Suizide2020)-1] <- Suizide2020$Female[nrow(Suizide2020)-1] + Suizide2020$Female[nrow(Suizide2020)]
+
+
+write.csv(   x = Suizide2020[1:(nrow(Suizide2020)-1),c(5,6,7,3,4)]
+            ,file = paste( 'data/23211-0004-2020', '.csv', sep='')
+            , row.names = FALSE
+)

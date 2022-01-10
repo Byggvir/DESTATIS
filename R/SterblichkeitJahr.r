@@ -44,7 +44,8 @@ WD <- paste(SD[1:(length(SD)-1)],collapse='/')
 
 setwd(WD)
 
-fPrefix <- "Fallzahlen_Wo_"
+outdir <- 'png/Sterblichkeit/' 
+dir.create( outdir , showWarnings = TRUE, recursive = FALSE, mode = "0777")
 
 require(data.table)
 
@@ -91,7 +92,7 @@ Sterbefaelle %>% ggplot(
   scale_x_continuous(minor_breaks = 1) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
 
-ggsave(paste('png/SterblichkeitJ_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
+ggsave(paste( outdir, 'Jahr_rel_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
        , device = "png"
        , bg = "white"
        , width = 3840, height = 2160
@@ -115,7 +116,7 @@ Sterbefaelle %>% ggplot(
   scale_x_continuous(minor_breaks = 1) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
 
-ggsave(paste('png/SterblichkeitJS_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
+ggsave(paste( outdir, 'Jahr_abs_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
        , device = "png"
        , bg = "white"
        , width = 3840, height = 2160
@@ -143,7 +144,7 @@ data %>% ggplot(
 #  scale_x_continuous(breaks=1:12,minor_breaks = seq(1, 12, 1),labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
 
-ggsave(paste('png/SterblichkeitJB_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
+ggsave(paste( outdir, 'Jahr_bar_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
        , device = "png"
        , bg = "white"
        , width = 3840, height = 2160

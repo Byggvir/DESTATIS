@@ -4,7 +4,7 @@
 BEGIN {
     i = 1 ;
     AG = -1;
-    NL = "NEWAG";
+    NL = "NEWAGE";
     DATUM=""
     BL[1]=8;
     BL[2]=9;
@@ -24,7 +24,7 @@ BEGIN {
     BL[16]=16;
 }
 {
-    if ( $1 == "NEWAG" ) {
+    if ( $1 == "NEWAGE" ) {
         if ( DATUM == $2 ) {
             AG = AG + 1 ;
         } else {

@@ -16,9 +16,7 @@ use DESTATIS;
 --  * StdBev18
 --  * SuizidRate
 
--- 
---  drop table if exists DT232110004;
--- 
+drop table if exists DT232110004; 
 
 create table if not exists `DT232110004` (
   `Jahr` int(11)
@@ -29,12 +27,13 @@ create table if not exists `DT232110004` (
   , PRIMARY KEY (`Jahr`, `AlterBis`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---LOAD DATA LOCAL 
---INFILE '/tmp/23211-0004.csv'      
---INTO TABLE DT232110004
---FIELDS TERMINATED BY ','
---IGNORE 0 ROWS;
+LOAD DATA LOCAL 
+INFILE '/tmp/23211-0004.csv'      
+INTO TABLE DT232110004
+FIELDS TERMINATED BY ','
+IGNORE 0 ROWS;
 
+drop table if exists DT232110004mod; 
 create table if not exists `DT232110004mod` (
   `Jahr` int(11)
   , `Geschlecht` CHAR(1)
@@ -64,6 +63,7 @@ select
 from DT232110004 as S
 ;
 
+drop table if exists SuizideAG;
 
 create table if not exists SuizideAG 
     ( AlterVon INT(11) NOT NULL PRIMARY KEY
@@ -84,7 +84,7 @@ from DT232110004
 
 drop table if exists StdBev18;
 
-create table StdBev18 (
+create table if not exists StdBev18 (
       Stichtag date NOT NULL
     , Geschlecht CHAR (1) DEFAULT 'M'
     , AlterVon INT DEFAULT 0

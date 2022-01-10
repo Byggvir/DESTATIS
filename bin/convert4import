@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Prepare downloaded files for import into MariaDB / MySQL database DESTATIS
+
+DEBUG=OFF
+
+# Color for output
+
+red=$(tput setaf 1)
+green=$(tput setaf 2)
+blue=$(tput setaf 4)
+reset=$(tput sgr0)
+
+AWK="$(dirname $0)/awk"
+DAT="$(dirname $0)/../data"
+SED="$(dirname $0)/sed"
+SQL="$(dirname $0)/../SQL"
+TMP=$(mktemp -d)
+
+for TAB in 12411-0006 12411-0013 23211-0002 23211-0004
+do
+
+    sed -f "${SED}/${TAB}.sed" "${DAT}/${TAB}.csv" \
+    | awk -F ',' -f "${AWK}/${TAB}.awk" \
+    > "/tmp/${TAB}.csv"
+
+done

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+sudo apt install 
+    gnumeric \
+    libxml2-dev \
+    libfontconfig1-dev \
+    libudunits2-dev \
+    libfreetype6-dev \
+    libpng-dev \
+    ibtiff5-dev \
+    libjpeg-dev \
+    libgslcblas0 \
+    libgsl27 \
+    gsl-bin

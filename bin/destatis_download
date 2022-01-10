@@ -13,59 +13,59 @@ reset=$(tput sgr0)
 
 URL1='https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Bevoelkerung/Sterbefaelle-Lebenserwartung/Tabellen/sonderauswertung-sterbefaelle.xlsx?__blob=publicationFile'
 URL2='https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Bevoelkerung/Sterbefaelle-Lebenserwartung/Tabellen/sonderauswertung-sterbefaelle-endgueltige-daten.xlsx?__blob=publicationFile'
+
 SED="$(dirname $0)/sed"
 AWK="$(dirname $0)/awk"
 DAT="$(dirname $0)/../data"
 #TMP=$(mktemp -d)
-TMP=/tmp
 
 function sonderauswertung {
 
     ssconvert  -S --export-type=Gnumeric_stf:stf_csv \
-        "$HOME/Downloads/sonderauswertung-sterbefaelle.xlsx" "$TMP/sat_%n.csv"
+        "${DAT}/Downloads/sonderauswertung-sterbefaelle.xlsx" "${TMP}/sat_%n.csv"
 
     ssconvert  -S --export-type=Gnumeric_stf:stf_csv \
-        "$DAT/sonderauswertung-sterbefaelle-endgueltige-daten.xlsx" "$TMP/sae_%n.csv"
+        "${DAT}/sonderauswertung-sterbefaelle-endgueltige-daten.xlsx" "${TMP}/sae_%n.csv"
         
     (
     
-    sed --file "$SED/sonderauswertung.sed" "$TMP/sat_5.csv" \
-    | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="1"}'
+    sed --file "${SED}/sonderauswertung.sed" "${TMP}/sat_5.csv" \
+    | awk -F ';' -f "${AWK}/sonderauswertung.awk" -e 'BEGIN {s="1"}'
     
-    sed --file "$SED/sonderauswertung.sed" "$TMP/sat_6.csv" \
-    | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="2"}'
+    sed --file "${SED}/sonderauswertung.sed" "${TMP}/sat_6.csv" \
+    | awk -F ';' -f "${AWK}/sonderauswertung.awk" -e 'BEGIN {s="2"}'
     
-    sed --file "$SED/sonderauswertung.sed" "$TMP/sae_5.csv" \
-    | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="1"}'
+    sed --file "${SED}/sonderauswertung.sed" "${TMP}/sae_5.csv" \
+    | awk -F ';' -f "${AWK}/sonderauswertung.awk" -e 'BEGIN {s="1"}'
     
-    sed --file "$SED/sonderauswertung.sed" "$TMP/sae_6.csv" \
-    | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="2"}'
+    sed --file "${SED}/sonderauswertung.sed" "${TMP}/sae_6.csv" \
+    | awk -F ';' -f "${AWK}/sonderauswertung.awk" -e 'BEGIN {s="2"}'
 
-    ) > "$TMP/SterbefaelleW.csv"
+    ) > "${TMP}/SterbefaelleW.csv"
 
     (
 
-    sed --file "$SED/sonderauswertung.sed" "$TMP/sat_8.csv" \
-    | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="1"}'
+    sed --file "${SED}/sonderauswertung.sed" "${TMP}/sat_8.csv" \
+    | awk -F ';' -f "${AWK}/sonderauswertung.awk" -e 'BEGIN {s="1"}'
     
-    sed --file "$SED/sonderauswertung.sed" "$TMP/sat_9.csv" \
-    | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="2"}'
+    sed --file "${SED}/sonderauswertung.sed" "${TMP}/sat_9.csv" \
+    | awk -F ';' -f "${AWK}/sonderauswertung.awk" -e 'BEGIN {s="2"}'
     
-    sed --file "$SED/sonderauswertung_endgueltig.sed" "$TMP/sae_8.csv" \
-    | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="1"}'
+    sed --file "${SED}/sonderauswertung_endgueltig.sed" "${TMP}/sae_8.csv" \
+    | awk -F ';' -f "${AWK}/sonderauswertung.awk" -e 'BEGIN {s="1"}'
     
-    sed --file "$SED/sonderauswertung_endgueltig.sed" "$TMP/sae_9.csv" \
-    | awk -F ';' -f "$AWK/sonderauswertung.awk" -e 'BEGIN {s="2"}'
+    sed --file "${SED}/sonderauswertung_endgueltig.sed" "${TMP}/sae_9.csv" \
+    | awk -F ';' -f "${AWK}/sonderauswertung.awk" -e 'BEGIN {s="2"}'
     
-    ) > "$TMP/SterbefaelleM.csv"
+    ) > "${TMP}/SterbefaelleM.csv"
     
     (
-    sed --file "$SED/sonderauswertung-tage.sed" "$TMP/sat_3.csv" \
-    | awk -F ';' -f "$AWK/sonderauswertung-tage.awk"
+    sed --file "${SED}/sonderauswertung-tage.sed" "${TMP}/sat_3.csv" \
+    | awk -F ';' -f "${AWK}/sonderauswertung-tage.awk"
     
-    sed --file "$SED/sonderauswertung-tage.sed" "$TMP/sae_3.csv" \
-    | awk -F ';' -f "$AWK/sonderauswertung-tage.awk" 
-    ) > "$TMP/SterbefaelleT.csv"
+    sed --file "${SED}/sonderauswertung-tage.sed" "${TMP}/sae_3.csv" \
+    | awk -F ';' -f "${AWK}/sonderauswertung-tage.awk" 
+    ) > "${TMP}/SterbefaelleT.csv"
     
 }
 
@@ -80,56 +80,7 @@ function fdownload {
 
 }
 
-function mksql {
-
-# 12411-0006 und 12411-0013
-
-cat <<EOF
-
-USE DESTATIS;
-
-delete from DT124110006;
-
-drop table if exists DT124110013;
-
-CREATE TABLE DT124110013 (
-  Stichtag date NOT NULL,
-  IdBundesland int(11) NOT NULL DEFAULT 1,
-  Geschlecht char(1) NOT NULL DEFAULT 'M',
-  Altersgruppe int(11) NOT NULL DEFAULT 0,
-  Anzahl bigint(20) DEFAULT NULL,
-  PRIMARY KEY ( Stichtag,IdBundesland,Geschlecht,Altersgruppe)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-LOAD DATA LOCAL INFILE '$TMP/12411-0006.csv' 
-    INTO TABLE DT124110006 
-    FIELDS TERMINATED BY ';'
-    ENCLOSED BY '"'
-    IGNORE 0 ROWS;
-
-LOAD DATA LOCAL INFILE '$TMP/12411-0013.csv' 
-    INTO TABLE DT124110013
-    
-    FIELDS TERMINATED BY ','
-    ENCLOSED BY '"'
-    IGNORE 0 ROWS;
-
-EOF
-    iconv -f ISO-8859-15 -t UTF-8 "$DAT/12411-0006.csv" \
-    | sed --file "$SED/12411-0006.sed" \
-    > "$TMP/12411-0006.csv"
-
-    cat "$DAT/12411-0013.csv" \
-    | tr -d '\344' \
-    | sed --file "$SED/12411-0013.sed" \
-    | awk -F ';' --file "$AWK/12411-0013.awk" \
-    > "$TMP/12411-0013.csv"
-
-}
-
-fdownload  "$URL1" "$HOME/Downloads/sonderauswertung-sterbefaelle.xlsx"
-fdownload  "$URL2" "$HOME/Downloads/sonderauswertung-sterbefaelle.xlsx"
+fdownload  "${URL1}" "${DAT}/sonderauswertung-sterbefaelle.xlsx"
+fdownload  "${URL2}" "${DAT}/sonderauswertung-sterbefaelle-endgueltige-daten.xlsx"
 
 sonderauswertung
-
-#mksql

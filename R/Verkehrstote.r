@@ -46,8 +46,6 @@ WD <- paste(SD[1:(length(SD)-1)],collapse='/')
 
 setwd(WD)
 
-fPrefix <- "Fallzahlen_Wo_"
-
 require(data.table)
 
 source("R/lib/myfunctions.r")

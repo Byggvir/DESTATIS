@@ -72,6 +72,8 @@ Ab <- 'and Jahr > 1990'
 SQL <- paste( 'select Jahr,Geschlecht,sum(Anzahl) as Anzahl, sum(PersonenZahl) as PersonenZahl from Selbstmorde where AlterVon > 0', Ab,'group by Jahr, Geschlecht;', sep = ' ')
 Selbstmorde <- RunSQL( SQL )
 
+print(Selbstmorde)
+
 Von <- min(Selbstmorde$Jahr)
 Bis <- max(Selbstmorde$Jahr)
 

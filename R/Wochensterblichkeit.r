@@ -8,7 +8,7 @@
 # E-Mail: thomas@arend-rhb.de
 #
 
-MyScriptName <- "Ueberstreblichkeit"
+MyScriptName <- "Uebersterblichkeit"
 
 library(tidyverse)
 library(REST)
@@ -43,8 +43,6 @@ if (rstudioapi::isAvailable()){
 WD <- paste(SD[1:(length(SD)-1)],collapse='/')
 
 setwd(WD)
-
-fPrefix <- "Fallzahlen_Wo_"
 
 require(data.table)
 

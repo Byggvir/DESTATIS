@@ -15,17 +15,4 @@ INTO TABLE DT232110002
 FIELDS TERMINATED BY ','
 IGNORE 0 ROWS;
 
-create or replace view Selbstmorde as
-
-select
-    `Jahr` as Jahr
-    , 'Männer' as Geschlecht
-    , Male as Anzahl
-from DT232110002
-union
-select
-    `Jahr` as Jahr
-    , 'Frauen' as Geschlecht
-    , Female as Anzahl
-from DT232110002
 ;

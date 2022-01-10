@@ -1,0 +1,101 @@
+#!/bin/bash
+
+# Setup DESTATIS
+
+DEBUG=OFF
+
+# Color for output
+
+red=`tput setaf 1`
+green=`tput setaf 2`
+blue=`tput setaf 4`
+reset=`tput sgr0`
+
+#
+# Define Variables as shortcuts to folders 
+#
+
+AWK="$(dirname $0)/awk"
+DAT="$(dirname $0)/../data"
+R="$(dirname $0)/R"
+SED="$(dirname $0)/sed"
+SQL="$(dirname $0)/../SQL"
+TMP=$(mktemp -d)
+
+#
+# Create database and grant privileges to user DESTATIS
+#
+
+# Replace 'eelaeZuK4ohGoh7Z' with a different password
+PASSWORD='eelaeZuK4ohGoh7Z'
+
+function create_databse {
+echo "To create the database the password for root is required"
+
+(
+cat <<EOF
+
+CREATE DATABASE IF NOT EXISTS DESTATIS;
+GRANT ALL ON DESTATIS.* to 'DESTATIS'@'localhost' identified by "${PASSWORD}" ;
+
+EOF
+
+) | mysql --user=root --password
+
+#
+# Import tables from data folder 
+#
+
+for TAB in 12411-0006 12411-0013 23211-0002 23211-0004
+do
+
+    sed -f "${SED}/${TAB}.sed" "${DAT}/${TAB}.csv" \
+    | awk -F ',' -f "${AWK}/${TAB}.awk" \
+    > "/tmp/${TAB}.csv"
+    
+    mysql --user=DESTATIS --password="${PASSWORD}" < "${SQL}/DT${TAB}.sql"
+
+done
+
+cat "${SQL}/StdBevoelkerung.sql" "${SQL}/views.sql" \
+| mysql --user=DESTATIS --password="${PASSWORD}"
+
+}
+
+
+
+. "$(dirname $0)/destatis_download"
+    cat "${SQL}/Sonderauswertun.sql" mysql --user=DESTATIS --password="${PASSWORD}"
+
+#
+# The following command must be executed as super user
+# R / STudio should beinstalled on the system 
+# These packages are required to rum additional R packages
+#
+# Install required Debian / Ubuntu packages for R
+#
+
+function debian_packages {
+
+sudo apt install \
+    gnumeric \
+    libxml2-dev \
+    libfontconfig1-dev \
+    libudunits2-dev \
+    libfreetype6-dev \
+    libpng-dev \
+    ibtiff5-dev \
+    libjpeg-dev \
+    libgslcblas0 \
+    libgsl27 \
+    gsl-bin
+}
+
+#
+# The following command can / should be executed as super user to install packages system wide
+#
+
+debian_packages
+
+#sudo /usr/bin/r < "${R}/setup.r"
+#sudo /usr/bin/r < "${R}/update.r"

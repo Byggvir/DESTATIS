@@ -79,11 +79,17 @@ SQL <- paste( 'select Jahr, Monat, sum(Male) as Male, sum(Female) as Female , su
 
 Sterbefaelle <- RunSQL( SQL )
 
+S <- Sterbefaelle %>% filter( Jahr < 2020 )
+meanMale <- mean(S$Male/S$BevMale) *1000000
+meanFemale <- mean(S$Female/S$BevFemale) *1000000
 
 Sterbefaelle %>% ggplot(
   aes( x = Monat )) +
-  geom_line( aes(y= Male/BevMale * 1000000, colour = 'Männer')) +
-  geom_line( aes(y= Female/BevFemale * 1000000, colour= 'Frauen')) +
+  geom_line( aes(y= Male/BevMale * 1000000, colour = 'Männer' ) ) +
+  geom_line( aes(y= Female/BevFemale * 1000000, colour= 'Frauen') ) +
+  geom_hline( yintercept = meanMale, linetype ='dotted', show.legend = TRUE ) +
+  geom_hline( yintercept = meanFemale, linetype ='dotted', show.legend = TRUE ) +
+  
   expand_limits(y = 0) +
   facet_wrap(vars(Jahr)) +
   theme_ipsum() +
@@ -111,28 +117,27 @@ data <- data.frame(
   , Geschlecht = rep(c('Männer','Frauen'),nrow(Sterbefaelle))
 )
 
-data %>% ggplot(
-  aes( x = Monat, y= Fall / Bev * 1000000, fill=Geschlecht )) +
-  geom_bar(position='dodge', stat = 'identity') +
-  expand_limits(y = 0) +
-  facet_wrap(vars(Jahr)) +
-  theme_ipsum() +
-  labs(  title = paste("Sterbefälle pro 1 Mio im Monat in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
-         , subtitle= paste("Deutschland, Stand:", heute)
-         , colour  = "Geschlecht"
-         , x ="Monat"
-         , y = "Anzahl pro 1 Mio"
-         , caption = citation ) +
-  scale_x_continuous(breaks=1:12,minor_breaks = seq(1, 12, 1),labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
-  scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
-
-ggsave(paste( outdir, 'Monat_bar_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
-       , device = "png"
-       , bg = "white"
-       , width = 3840, height = 2160
-       , units = "px"
-)
-
+# data %>% ggplot() +
+#   geom_bar( aes( x = Monat, y = Fall / Bev * 1000000, fill = Geschlecht ), position='dodge', stat = 'identity') +
+#   expand_limits(y = 0) +
+#   facet_wrap(vars(Jahr)) +
+#   theme_ipsum() +
+#   labs(  title = paste("Sterbefälle pro 1 Mio im Monat in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
+#          , subtitle= paste("Deutschland, Stand:", heute)
+#          , colour  = "Geschlecht"
+#          , x ="Monat"
+#          , y = "Anzahl pro 1 Mio"
+#          , caption = citation ) +
+#   scale_x_continuous(breaks=1:12,minor_breaks = seq(1, 12, 1),labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
+#   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
+# 
+# ggsave(paste( outdir, 'Monat_bar_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
+#        , device = "png"
+#        , bg = "white"
+#        , width = 3840, height = 2160
+#        , units = "px"
+# )
+# 
 }
 
 SQL <- 'select distinct AlterVon, AlterBis from SterbefaelleMonatBev;'

@@ -100,5 +100,5 @@ create_database
 . "$(dirname $0)/destatis_download"
 cat "${SQL}/Sonderauswertung.sql" | mysql --user=DESTATIS --password="${PASSWORD}"
 
-#sudo /usr/bin/r < "${R}/setup.r"
-# sudo /usr/bin/r < "${R}/update.r"
+sudo /usr/bin/r < "${R}/setup.r"
+sudo /usr/bin/r < "${R}/update.r"

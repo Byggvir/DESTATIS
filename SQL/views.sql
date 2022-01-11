@@ -122,6 +122,69 @@ select
             , `B`.`AlterBis`
 ;
 
+create or replace view `SterbefaelleJahr` as
+
+select 
+      `M`.`Jahr` AS `Jahr`
+    , `M`.`AlterVon` AS `AlterVon`
+    , `M`.`AlterBis` AS `AlterBis`
+    , sum(`M`.`Male`) AS `Male`
+    , sum(`M`.`Female`) AS `Female`
+from
+    `DESTATIS`.`SterbefaelleMonat` `M` 
+where 
+    `M`.`AlterBis` < 85
+group by
+ `M`.`Jahr`
+ , `M`.`AlterVon`
+ , `M`.`AlterBis`
+union 
+select 
+      `M`.`Jahr` AS `Jahr`
+    , 85 AS `AlterVon`
+    , 100 AS `AlterBis`
+    , sum(`M`.`Male`) AS `Male`
+    , sum(`M`.`Female`) AS `Female`
+from
+    `DESTATIS`.`SterbefaelleMonat` `M` 
+where 
+    `M`.`AlterVon` >= 85
+
+group by
+ `M`.`Jahr`
+;
+
+create or replace view `SterbefaelleJahrBev` as
+
+select 
+      `M`.`Jahr` AS `Jahr`
+    , 'M' AS `Geschlecht`
+    , `M`.`AlterVon` AS `AlterVon`
+    , `M`.`AlterBis` AS `AlterBis`
+    , `M`.`Male` AS `Anzahl`
+    , `B`.`Male` AS `Einwohner`
+from `DESTATIS`.`SterbefaelleJahr` `M`
+join `DESTATIS`.`DT124110006mod` AS `B`
+on
+    `B`.`Jahr` = `M`.`Jahr`
+    and `B`.`AlterVon` = `M`.`AlterVon`
+    and `B`.`AlterBis` = `M`.`AlterBis`
+union
+select 
+      `M`.`Jahr` AS `Jahr`
+    , 'F' AS `Geschlecht`
+    , `M`.`AlterVon` AS `AlterVon`
+    , `M`.`AlterBis` AS `AlterBis`
+    , `M`.`Female` AS `Anzahl`
+    , `B`.`Female` AS `Einwohner`
+from `DESTATIS`.`SterbefaelleJahr` `M`
+join `DESTATIS`.`DT124110006mod` AS `B`
+on
+    `B`.`Jahr` = `M`.`Jahr`
+    and `B`.`AlterVon` = `M`.`AlterVon`
+    and `B`.`AlterBis` = `M`.`AlterBis`
+;
+
 create or replace view `SterbefaelleProWoche` AS 
 select 
     `SterbefaelleWoche`.`Jahr` AS `Jahr`

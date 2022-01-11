@@ -44,7 +44,9 @@ WD <- paste(SD[1:(length(SD)-1)],collapse='/')
 
 setwd(WD)
 
-fPrefix <- "Fallzahlen_Wo_"
+outdir <- 'png/Sterblichkeit/' 
+dir.create( outdir , showWarnings = TRUE, recursive = FALSE, mode = "0777")
+
 
 require(data.table)
 
@@ -94,7 +96,7 @@ Sterbefaelle %>% ggplot(
   scale_x_continuous(breaks=1:12,minor_breaks = seq(1, 12, 1),labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
 
-ggsave(paste('png/SterblichkeitM_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
+ggsave(paste( outdir, 'Monat_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
        , device = "png"
        , bg = "white"
        , width = 3840, height = 2160
@@ -124,7 +126,7 @@ data %>% ggplot(
   scale_x_continuous(breaks=1:12,minor_breaks = seq(1, 12, 1),labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
 
-ggsave(paste('png/SterblichkeitMB_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
+ggsave(paste( outdir, 'Monat_bar_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
        , device = "png"
        , bg = "white"
        , width = 3840, height = 2160
@@ -139,6 +141,7 @@ AG <- RunSQL(SQL)
 plotit (Alter = c(0,59))
 plotit (Alter = c(0,100))
 plotit (Alter = c(60,100))
+plotit (Alter = c(80,100))
 
 for (i in 1:(nrow(AG))) {
   

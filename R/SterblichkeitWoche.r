@@ -44,7 +44,8 @@ WD <- paste(SD[1:(length(SD)-1)],collapse='/')
 
 setwd(WD)
 
-fPrefix <- "Fallzahlen_Wo_"
+outdir <- 'png/Sterblichkeit/' 
+dir.create( outdir , showWarnings = TRUE, recursive = FALSE, mode = "0777")
 
 require(data.table)
 
@@ -93,7 +94,7 @@ Sterbefaelle %>% filter(Jahr >= 2010) %>% ggplot(
 #  scale_x_continuous(breaks=1:53,minor_breaks = seq(1, 53, 1) ) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
 
-ggsave(paste('png/SterblichkeitW_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
+ggsave(paste( outdir, 'Woche_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
        , device = "png"
        , bg = "white"
        , width = 3840, height = 2160

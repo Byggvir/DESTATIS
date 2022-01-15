@@ -23,7 +23,7 @@ select
     , `M`.`AlterBis` AS `AlterBis`
     , sum(`M`.`Gestorbene`) AS `Gestorbene`
 from
-    `DESTATIS`.`SterbefaelleMonat` `M` 
+    `DESTATIS`.`SterbefaelleMonat` as `M` 
 where 
     `M`.`AlterBis` < 85
 group by
@@ -85,62 +85,56 @@ group by
 create or replace view SterbeRateMonat as 
     select 
         Monat
+        , Geschlecht as Geschlecht
         , AlterVon
         , AlterBis
-        , Geschlecht as Geschlecht
         , avg(Gestorbene/Einwohner) as SterbeRate
         , stddev(Gestorbene/Einwohner) as StdDevSterbeRate
-    from SterbefaelleMonatBev 
+    from SterbefaelleMonatBev
     where 
         Jahr < 2020 
-        and Jahr > 2009 
-    group by 
-          Geschlecht
+        and Jahr > 2015
+    group by
+          Monat
+        , Geschlecht
         , AlterVon
         , AlterBis
-        , Monat 
 ;
 
 create or replace view SchaetzeSterbefaelle as
 
     select
-          adddate(B.Stichtag,1) as Jahr
-        , S.Monat
-        , B.AlterVon
-        , B.AlterBis
-        , B.Geschlecht
-        , B.Anzahl as Einwohner
+          M.Jahr as Jahr
+        , M.Monat
+        , M.AlterVon
+        , M.AlterBis
+        , M.Geschlecht
+        , M.Einwohner as Einwohner
         , M.Gestorbene as Gestorbene
-        , SterbeRate * B.Anzahl as AnzahlSterbefall
-        , StdDevSterbeRate * B.Anzahl as Abweichung
+        , S.SterbeRate * M.Einwohner as ErwGestorbene
+        , S.StdDevSterbeRate * M.Einwohner as Abweichung
         
-    from StdBev18 as B 
-
+    from SterbefaelleMonatBev as M 
     join SterbeRateMonat as S 
     on 
-            B.AlterVon = S.AlterVon
-        and B.AlterBis = S.AlterBis
-        and B.Geschlecht = S.Geschlecht
-    join SterbefaelleMonat as M
-    on
-            M.Jahr = adddate(B.Stichtag,1)
+            M.Monat = S.Monat
+        and M.Geschlecht = S.Geschlecht
         and M.AlterVon = S.AlterVon
         and M.AlterBis = S.AlterBis
-        and M.Geschlecht = S.Geschlecht
-
     group by
-        Jahr
-        , Monat
-        , B.AlterVon
-        , B.AlterBis
-        , B.Geschlecht
+        M.Jahr
+        , M.Monat
+        , M.AlterVon
+        , M.AlterBis
+        , M.Geschlecht
 ;
     
 create or replace view SchaetzeSterbefaelleJahr as
 
     select 
         Jahr as Jahr
-        , round(sum(AnzahlSterbefall)) as Anzahl
+        , sum(Gestorbene) as Gestorbene
+        , round(sum(ErwGestorbene)) as ErwGestorbene
         , sqrt(sum(Abweichung^2)) as Abweichung
     from SchaetzeSterbefaelle
     group by

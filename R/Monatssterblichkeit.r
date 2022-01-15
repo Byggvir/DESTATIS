@@ -8,7 +8,7 @@
 # E-Mail: thomas@arend-rhb.de
 #
 
-MyScriptName <- "Ueberstreblichkeit"
+MyScriptName <- "MonatsSterblichkeit"
 
 library(tidyverse)
 library(REST)
@@ -49,8 +49,8 @@ fPrefix <- "Fallzahlen_Wo_"
 require(data.table)
 
 source("R/lib/myfunctions.r")
+source("R/lib/mytheme.r")
 source("R/lib/sql.r")
-source("R/lib/color_palettes.r")
 
 citation <- "© Thomas Arend, 2021\nQuelle: © Statistisches Bundesamt (Destatis), 2021\nStand 07.10.2021"
 
@@ -64,16 +64,14 @@ options(
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
 
-SQL <- 'select Jahr, Monat, AlterVon, Male/BevMale*1000 as Male, Female/BevFemale*1000 as Female from SterbefaelleMonatBev where Jahr > 2015;'
+SQL <- 'select Jahr, Monat, Geschlecht, AlterVon, Gestorbene / Einwohner Sterberate from SterbefaelleMonatBev where Jahr > 2015;'
 
 Sterbefaelle <- RunSQL( SQL )
 
 Sterbefaelle %>% ggplot(
-  aes( x = AlterVon )) +
-  geom_point( aes( y = Male, colour = 'Männer' ) ) +
-  geom_point( aes( y = Female, colour= 'Frauen' ) ) +
-  # geom_smooth( aes( y = Male )) +
-  # geom_smooth( aes( y = Female )) +
+  aes( x = AlterVon, y = Sterberate, colour = Geschlecht )) +
+  geom_point() +
+  geom_smooth() +
   facet_wrap(vars(Jahr)) +
   theme_ipsum() +
   labs(  title = paste("Sterbefälle pro Monat pro 1.000")

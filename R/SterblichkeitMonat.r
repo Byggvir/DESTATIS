@@ -68,25 +68,30 @@ heute <- format(today, "%d %b %Y")
 
 plotit <- function (Alter =c(60,120) ) { 
 
-SQL <- paste( 'select Jahr, Monat, sum(Male) as Male, sum(Female) as Female , sum(BevMale) as BevMale, sum(BevFemale) as BevFemale from SterbefaelleMonatBev'
+SQL <- paste( 'select Jahr, Monat, Geschlecht, sum(Gestorbene) as Gestorbene , sum(Einwohner) as Einwohner from SterbefaelleMonatBev'
   , 'where'
   , 'AlterVon >=', Alter[1]
   , 'and'
   , 'AlterBis <=', Alter[2]
   , 'and Jahr > 2015'
-  ,'group by Jahr, Monat;'
+  ,'group by Jahr, Monat, Geschlecht;'
 )
 
 Sterbefaelle <- RunSQL( SQL )
 
 S <- Sterbefaelle %>% filter( Jahr < 2020 )
-meanMale <- mean(S$Male/S$BevMale) *1000000
-meanFemale <- mean(S$Female/S$BevFemale) *1000000
+
+Sterbefaelle$Geschlecht[Sterbefaelle$Geschlecht == 'M'] <- 'Männer'
+Sterbefaelle$Geschlecht[Sterbefaelle$Geschlecht == 'F'] <- 'Frauen'
+
+
+meanMale <- mean(S$Gestorbene[S$Geschlecht == 'M'] / S$Einwohner[S$Geschlecht == 'M']) * 1000000
+meanFemale <- mean(S$Gestorbene[S$Geschlecht == 'F'] / S$Einwohner[S$Geschlecht == 'F']) * 1000000
 
 Sterbefaelle %>% ggplot(
-  aes( x = Monat )) +
-  geom_line( aes(y= Male/BevMale * 1000000, colour = 'Männer' ) ) +
-  geom_line( aes(y= Female/BevFemale * 1000000, colour= 'Frauen') ) +
+  aes( x = Monat, y = Gestorbene / Einwohner *1000000, colour = Geschlecht )) +
+  geom_line( aes( colour = Geschlecht) ) +
+
   geom_hline( yintercept = meanMale, linetype ='dotted', show.legend = TRUE ) +
   geom_hline( yintercept = meanFemale, linetype ='dotted', show.legend = TRUE ) +
   
@@ -109,34 +114,27 @@ ggsave(paste( outdir, 'Monat_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
        , units = "px"
 )
 
-data <- data.frame(
-  Jahr = c(Sterbefaelle$Jahr,Sterbefaelle$Jahr)
-  , Monat = c(Sterbefaelle$Monat,Sterbefaelle$Monat)
-  , Rate = c(Sterbefaelle$Male,Sterbefaelle$Female) / c(Sterbefaelle$BevMale,Sterbefaelle$BevFemale)* 1000000
-  , Geschlecht = c(rep('Männer',nrow(Sterbefaelle)),rep('Frauen',nrow(Sterbefaelle))) 
-)
-
-data %>% ggplot() +
-  geom_bar( aes( x = Monat, y = Rate, fill = Geschlecht ), position='dodge', stat = 'identity') +
-  expand_limits(y = 0) +
-  facet_wrap(vars(Jahr)) +
-  theme_ipsum() +
-  labs(  title = paste("Sterbefälle pro 1 Mio im Monat in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
-         , subtitle= paste("Deutschland, Stand:", heute)
-         , colour  = "Geschlecht"
-         , x ="Monat"
-         , y = "Anzahl pro 1 Mio"
-         , caption = citation ) +
-  scale_x_continuous(breaks=1:12,minor_breaks = seq(1, 12, 1),labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
-  scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
-
-ggsave(paste( outdir, 'Monat_bar_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
-       , device = "png"
-       , bg = "white"
-       , width = 3840, height = 2160
-       , units = "px"
-)
-
+# data %>% ggplot() +
+#   geom_bar( aes( x = Monat, y = Rate, fill = Geschlecht ), position='dodge', stat = 'identity') +
+#   expand_limits(y = 0) +
+#   facet_wrap(vars(Jahr)) +
+#   theme_ipsum() +
+#   labs(  title = paste("Sterbefälle pro 1 Mio im Monat in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
+#          , subtitle= paste("Deutschland, Stand:", heute)
+#          , colour  = "Geschlecht"
+#          , x ="Monat"
+#          , y = "Anzahl pro 1 Mio"
+#          , caption = citation ) +
+#   scale_x_continuous(breaks=1:12,minor_breaks = seq(1, 12, 1),labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
+#   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
+# 
+# ggsave(paste( outdir, 'Monat_bar_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
+#        , device = "png"
+#        , bg = "white"
+#        , width = 3840, height = 2160
+#        , units = "px"
+# )
+# 
 }
 
 SQL <- 'select distinct AlterVon, AlterBis from SterbefaelleMonatBev;'

@@ -15,10 +15,11 @@ library( ggpubr )
 library( viridis )
 library( hrbrthemes )
 library( scales )
-library( Cairo )
+library( ragg )
 library( htmltab )
 library( readODS )
 library( XML )
+
 
 # library( extrafont )
 # extrafont::loadfonts()
@@ -43,7 +44,7 @@ WD <- paste( SD[1:( length( SD ) - 2 )],collapse='/' )
 setwd( WD )
 
 source( "R/lib/myfunctions.r" )
-# source( "R/lib/mytheme.r" )
+source( "R/lib/mytheme.r" )
 source( "R/lib/sql.r" )
 
 

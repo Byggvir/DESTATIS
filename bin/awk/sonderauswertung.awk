@@ -1,7 +1,7 @@
 # awk Script zur Umformatierung der Tabellenblätter 5,6,8,9 
 # Die Variable s = Sex / Geschlecht muss auf der Komandozeile gesetzt werden.
-# s = 1 : Männlich
-# s = 2 : Weiblich
+# s = 'M' : Männlich
+# s = 'F' : Weiblich
 
 BEGIN {
     
@@ -12,7 +12,7 @@ BEGIN {
 }
 {
     if ( $1 == "Jahr" ) {
-
+        
         # Neues Jahr beginnt
         # In der MySQL Datenbank ist das AlterBis einschließlich, 
         # nicht wie in der Sonderauswertung ausschließlich.
@@ -27,12 +27,10 @@ BEGIN {
         # Zeile enthält nur den Wert für einen Monat / eine Kalenderwoche
         
         # Ausgabe für den Import aus einer CSV Datei
-        # In der MySQL Datenbakn ist das AlterBis einschließlich, 
+        # In der MySQL Datenbank ist das AlterBis einschließlich, 
         # nicht wie in der Sonderauswertung ausschließlich.
-        
-        printf ( "%s,%d,%d,%d,%d,%d\n", s, j, i, a, b, $1 ) ;
+        print ( j "," i "," s "," a "," b "," $1 ) ;
         i = i + 1;
     }
-    
-    
+
 }

@@ -16,6 +16,7 @@ DAT="$(dirname $0)/../data"
 SED="$(dirname $0)/sed"
 SQL="$(dirname $0)/../SQL"
 TMP=$(mktemp -d)
+TMP=/tmp/
 
 for TAB in 12411-0006 12411-0013 23211-0002 23211-0004 23211-0004-2020
 do

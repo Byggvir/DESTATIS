@@ -48,8 +48,8 @@ setwd(WD)
 require(data.table)
 
 source("R/lib/myfunctions.r")
+source("R/lib/mytheme.r")
 source("R/lib/sql.r")
-source("R/lib/color_palettes.r")
 
 citation <- "© Thomas Arend, 2021\nQuelle: © Statistisches Bundesamt (Destatis), 2021"
 
@@ -70,10 +70,10 @@ prio      = 0.9
 vax_weeks = 6
   
 SQL <- paste( 
-    'select sum(`Both`) as Population from DT124110006 '
+    'select sum(`Einwohner`) as Population from DT124110006 '
   , 'where `Alter` > 79 and `Alter` < 85 and Stichtag = "2020-12-31"'
   , 'union'
-  , 'select sum(`Both`) from DT124110006 '
+  , 'select sum(`Einwohner`) from DT124110006 '
   , 'where `Alter` > 84 and Stichtag = "2020-12-31"'
   , ';'
 )
@@ -104,7 +104,7 @@ SQL <- paste(
   'select 
         AlterVon
       , Kw
-      , sum(Male+Female)/sum(BevMale+BevFemale) * 100000 as Mort
+      , sum(Gestorbene)/sum(Einwohner) * 100000 as Mort
    from SterbefaelleWocheBev where AlterVon >79 
    group by Kw;'
 )
@@ -115,7 +115,7 @@ SQL <- paste(
   'select 
         AlterVon
       , Kw
-      , sum(Male+Female)/sum(BevMale+BevFemale) * 100000 as Mort
+      , sum(Gestorbene)/sum(Einwohner) * 100000 as Mort
    from SterbefaelleWocheBev where AlterVon >79 and AlterBis < 85 
    group by Kw;'
 )
@@ -126,7 +126,7 @@ SQL <- paste(
   'select 
         AlterVon
       , Kw
-      , sum(Male+Female)/sum(BevMale+BevFemale) * 100000 as Mort
+      , sum(Gestorbene)/sum(Einwohner) * 100000 as Mort
    from SterbefaelleWocheBev where AlterVon >84 
    group by Kw;'
 )
@@ -206,8 +206,8 @@ MT %>% ggplot(
   geom_line( aes( y = Mortality_1Dose, colour = '80+ 1st Dose' )) +
   geom_line( aes( y = Mortality_Vaccinated, colour = '80+ Vaccinated' )) +
   geom_line( aes( y = Mortality_Unvaccinated, colour = '80+ Unvaccinated' )) +
-  expand_limits( y = 0) + 
-  theme_ipsum() +
+#  expand_limits( y = 0) + 
+  theme_ta() +
   labs(  title = paste('Mortality during a vaccination campaign with priority based on age')
          , subtitle= paste('Simulation, Priority older ', prio, 'to younger', (1-prio))
          , colour  = 'Mortality'
@@ -219,6 +219,7 @@ MT %>% ggplot(
 ggsave(paste('png/Altersverzerrung-Prio',prio*10,'.png', sep='')
        , device = "png"
        , bg = "white"
-       , width = 3840, height = 2160
+       , width = 3840
+       , height = 2160
        , units = "px"
 )

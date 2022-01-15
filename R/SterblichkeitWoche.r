@@ -67,22 +67,22 @@ heute <- format(today, "%d %b %Y")
 
 plotit <- function (Alter =c(60,120) ) { 
 
-SQL <- paste( 'select Jahr, Kw, sum(Male) as Male, sum(Female) as Female , sum(BevMale) as BevMale, sum(BevFemale) as BevFemale from SterbefaelleWocheBev'
-  , 'where'
+  SQL <- paste( 'select Jahr, Kw, Geschlecht, sum(Gestorbene) as Gestorbene , sum(Einwohner) as Einwohner from SterbefaelleWocheBev'
+                , 'where'
   , 'AlterVon >=', Alter[1]
   , 'and'
   , 'AlterBis <=', Alter[2]
-  , 'group by Jahr, Kw;'
+  , 'group by Jahr, Kw, Geschlecht;'
 )
 
 Sterbefaelle <- RunSQL( SQL )
+Sterbefaelle$Geschlecht[Sterbefaelle$Geschlecht == 'M'] <- 'Männer'
+Sterbefaelle$Geschlecht[Sterbefaelle$Geschlecht == 'F'] <- 'Frauen'
 
 Sterbefaelle %>% filter(Jahr >= 2010) %>% ggplot(
   aes( x = Kw )) +
-  geom_line( aes(y= Male/BevMale * 1000000, colour = 'Männer')) +
-  geom_line( aes(y= Female/BevFemale*1000000, colour= 'Frauen')) +
+  geom_line( aes(y= Gestorbene / Einwohner * 1000000, colour = Geschlecht)) +
   expand_limits(y = 0) +
-#  geom_bar(position="dodge", stat="identity") +
   facet_wrap(vars(Jahr)) +
   theme_ipsum() +
   labs(  title = paste("Sterbefälle pro 1 Mio pro Woche in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')

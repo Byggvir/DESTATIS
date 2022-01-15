@@ -1,5 +1,5 @@
 # AWK
-# Generate SQL CSV from 1241100ß6.csv for import
+# Generate SQL CSV from 124110006.csv for import
 
 BEGIN {
 }

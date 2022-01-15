@@ -99,10 +99,10 @@ create table if not exists StdBev18 (
     
 select 
     S.Stichtag as Stichtag
-    , 'M' as Geschlecht
+    , S.Geschlecht as Geschlecht
     , A.AlterVon as AlterVon
     , A.AlterBis as AlterBis
-    , sum(S.Male) as Anzahl
+    , sum(S.Einwohner) as Anzahl
 from SuizideAG as A
 join DT124110006 as S
 on 
@@ -110,24 +110,7 @@ on
     and S.`Alter` >= A.AlterVon
 group by
     S.Stichtag
-    , A.AlterVon
-    , A.AlterBis
-
-union
-
-select 
-    S.Stichtag as Stichtag
-    , 'F' as Geschlecht
-    , A.AlterVon as AlterVon
-    , A.AlterBis as AlterBis
-    , sum(S.Female) as Anzahl
-from SuizideAG as A
-join DT124110006 as S
-on 
-    S.`Alter`<= A.AlterBis
-    and S.`Alter` >= A.AlterVon
-group by
-    S.Stichtag
+    , S.Geschlecht
     , A.AlterVon
     , A.AlterBis
     ;

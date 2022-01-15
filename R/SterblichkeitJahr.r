@@ -8,7 +8,7 @@
 # E-Mail: thomas@arend-rhb.de
 #
 
-MyScriptName <- "SterblichkeitMonat"
+MyScriptName <- "SterblichkeitJahr"
 
 library(tidyverse)
 library(REST)
@@ -67,7 +67,7 @@ heute <- format(today, "%d %b %Y")
 
 plotit <- function (Alter =c(60,120) ) { 
 
-SQL <- paste( 'select Jahr, case when Geschlecht = "M" then "Männer" else "Frauen" end as Geschlecht,', Alter[1],'as AlterVon,', Alter[2],'as AlterBis , sum(Anzahl) as Anzahl , sum(Einwohner) as Einwohner from SterbefaelleJahrBev'
+SQL <- paste( 'select Jahr, case when Geschlecht = "M" then "Männer" else "Frauen" end as Geschlecht,', Alter[1],'as AlterVon,', Alter[2],'as AlterBis , sum(Gestorbene) as Gestorbene , sum(Einwohner) as Einwohner from SterbefaelleJahrBev'
   , 'where'
   , 'AlterVon >=', Alter[1]
   , 'and'
@@ -80,7 +80,7 @@ Sterbefaelle <- RunSQL( SQL )
 print (Sterbefaelle)
 
 Sterbefaelle %>% ggplot(
-  aes( x = Jahr, y = Anzahl / Einwohner * 1000000 )) +
+  aes( x = Jahr, y = Gestorbene / Einwohner * 1000000 )) +
   geom_line( aes( colour = Geschlecht)) +
   expand_limits(y = 0) +
   theme_ipsum() +
@@ -101,7 +101,7 @@ ggsave(paste( outdir, 'Jahr_rel_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
 )
 
 Sterbefaelle %>% ggplot(
-  aes( x = Jahr, y = Anzahl, group = Geschlecht )) +
+  aes( x = Jahr, y = Gestorbene, group = Geschlecht )) +
   geom_line( aes( colour = Geschlecht)) +
   geom_smooth( aes( colour = Geschlecht), method= 'lm' ) +
   expand_limits(y = 0) +
@@ -124,7 +124,7 @@ ggsave(paste( outdir, 'Jahr_abs_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
 )
 
 Sterbefaelle %>% ggplot(
-  aes( x = Jahr, y = Anzahl / Einwohner * 1000000, fill = Geschlecht )) +
+  aes( x = Jahr, y = Gestorbene / Einwohner * 1000000, fill = Geschlecht )) +
   geom_bar(position="dodge", stat="identity") +
   expand_limits(y = 0) +
   theme_ipsum() +

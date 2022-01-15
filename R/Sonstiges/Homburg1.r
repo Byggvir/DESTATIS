@@ -8,7 +8,7 @@
 # E-Mail: thomas@arend-rhb.de
 #
 
-MyScriptName <- "Ueberstreblichkeit"
+MyScriptName <- "Homburg1"
 
 library(tidyverse)
 library(REST)
@@ -20,7 +20,7 @@ library(ggplot2)
 library(viridis)
 library(hrbrthemes)
 library(scales)
-library(Cairo)
+library(ragg)
 
 # library(extrafont)
 # extrafont::loadfonts()
@@ -44,13 +44,10 @@ WD <- paste(SD[1:(length(SD)-2)],collapse='/')
 
 setwd(WD)
 
-fPrefix <- "Fallzahlen_Wo_"
-
 require(data.table)
 
 source("R/lib/myfunctions.r")
 source("R/lib/sql.r")
-source("R/lib/color_palettes.r")
 
 
 today <- Sys.Date()
@@ -98,7 +95,8 @@ Sterbefaelle %>% ggplot(
   )
 
 ggsave(paste('png/Humbug-001.png', sep='')
-       , type = "cairo-png",  bg = "white"
+       , device = 'png'
+       , bg = "white"
        , width = 29.7
        , height = 21
        , units = "cm"
@@ -122,7 +120,8 @@ Sterbefaelle %>% ggplot() +
   )
 
 ggsave(paste('png/Humbug-002.png', sep='')
-       , type = "cairo-png",  bg = "white"
+       , device = 'png'
+       , bg = "white"
        , width = 29.7
        , height = 21
        , units = "cm"
@@ -160,7 +159,8 @@ SterbefaelleImpfung %>% ggplot() +
   )
 
 ggsave(paste('png/Humbug-003.png', sep='')
-       , type = "cairo-png",  bg = "white"
+       , device = 'png'
+       , bg = "white"
        , width = 29.7
        , height = 21
        , units = "cm"
@@ -185,10 +185,10 @@ SterbefaelleImpfung %>% ggplot() +
   )
 
 ggsave(paste('png/Humbug-004.png', sep='')
-       , type = "cairo-png",  bg = "white"
+       , device = 'png'
+       , bg = "white"
        , width = 29.7
        , height = 21
        , units = "cm"
        , dpi = 300
 )
-

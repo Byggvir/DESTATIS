@@ -36,26 +36,24 @@ setwd(WD)
 require(data.table)
 
 source("R/lib/myfunctions.r")
+source("R/lib/mytheme.r")
 source("R/lib/sql.r")
-source("R/lib/color_palettes.r")
 
-citation <- "© 2021 by Thomas Arend\nQuelle: DESTATIS"
+citation <- "© 2022 by Thomas Arend\nQuelle: DESTATIS"
 
 options(scipen=10)
 
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
 
-SQL <- 'select year(Stichtag) as Jahr, sum(Male) as Male, sum(Female) as Female from DT124110006 where `Alter` >= 80 group by year(Stichtag);'
+SQL <- 'select year(Stichtag) as Jahr, Geschlecht, sum(Einwohner) as Einwohner from DT124110006 where `Alter` >= 80 group by Jahr, Geschlecht;'
 germany <- RunSQL (SQL)
 
 germany %>% ggplot(
     aes( x = Jahr ) ) +
-    geom_line(aes( y = Male, col = "Männer" )) +
-    geom_line(aes( y = Female, col = "Frauen" )) +
+    geom_line(aes( y = Einwohner, colour = Geschlecht )) +
     scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
-    # geom_bar(aes(y = Female, col = "red"),position="dodge", stat="identity") +
-    theme_ipsum() +
+    theme_ta() +
     labs(  title = "Bevölkerung älter als 80 Jahre"
            , subtitle= paste("Deutschland, Stand:", heute)
            , colour = "Geschlecht"
@@ -63,35 +61,38 @@ germany %>% ggplot(
            , legend = "Geschlecht"
            , x ="Jahr"
            , y = "Anzahl"
-           , caption = citation ) -> pp
+           , caption = citation ) -> pp1
 
 ggsave("png/DEPopulationAge.png"
+       , plot = pp1
        , device = "png"
        , bg = "white"
-       , width = 1920, height = 1080
+       , width = 3840
+       , height = 2160
        , units = "px"
 )
 
-SQL <- 'select year(Stichtag) as Jahr, `Alter` , Male as Male, Female as Female from DT124110006 where `Alter` >= 80 and `Alter` < 85 and Stichtag >= "2015-12-31";'
+SQL <- 'select year(Stichtag) as Jahr, Geschlecht, sum(Einwohner) as Einwohner from DT124110006 where `Alter` >= 80 and `Alter` < 85 and Stichtag >= "2015-12-31" group by Jahr, Geschlecht;'
 germany_alter <- RunSQL (SQL)
 
 germany_alter %>% ggplot(
-    aes( x = Alter) ) +
-    geom_line(aes( y = Male, col = "Männer" )) +
-    geom_line(aes( y = Female, col = "Frauen" )) +
+    aes( x = Jahr ) ) +
+    geom_line(aes( y = Einwohner, colour = Geschlecht ) ) +
     scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
-    facet_wrap(vars(Jahr)) +
-    theme_ipsum() +
+#    facet_wrap(vars(Jahr)) +
+    theme_ta() +
     labs(  title = "Bevölkerung 80 - 84 Jahre alt"
            , subtitle= paste("Deutschland, Stand:", heute)
-           , x ="Alter"
+           , x = "Alter"
            , y = "Anzahl"
            , colour = 'Geschlecht'
-           , caption = citation ) -> pp
+           , caption = citation ) -> pp2
 
 ggsave("png/DEPopulationAge2.png"
+       , plot = pp2
        , device = "png"
        , bg = "white"
-       , width = 3840, height = 2160
+       , width = 3840
+       , height = 2160
        , units = "px"
 )

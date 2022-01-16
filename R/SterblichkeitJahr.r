@@ -53,8 +53,6 @@ source("R/lib/myfunctions.r")
 source("R/lib/sql.r")
 source("R/lib/color_palettes.r")
 
-citation <- "© Thomas Arend, 2021\nQuelle: © Statistisches Bundesamt (Destatis), 2021\nStand 07.10.2021"
-
 options( 
   digits = 7
   , scipen = 7
@@ -64,7 +62,9 @@ options(
 
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
-
+citation <- paste( '© Thomas Arend, 2021\nQuelle: © Statistisches Bundesamt (Destatis), 2021\nStand:', heute )
+                  
+                  
 plotit <- function (Alter =c(60,120) ) { 
 
 SQL <- paste( 'select Jahr, case when Geschlecht = "M" then "Männer" else "Frauen" end as Geschlecht,', Alter[1],'as AlterVon,', Alter[2],'as AlterBis , sum(Gestorbene) as Gestorbene , sum(Einwohner) as Einwohner from SterbefaelleJahrBev'
@@ -77,11 +77,12 @@ SQL <- paste( 'select Jahr, case when Geschlecht = "M" then "Männer" else "Frau
 
 Sterbefaelle <- RunSQL( SQL )
  
-print (Sterbefaelle)
+# print (Sterbefaelle)
 
 Sterbefaelle %>% ggplot(
   aes( x = Jahr, y = Gestorbene / Einwohner * 1000000 )) +
   geom_line( aes( colour = Geschlecht)) +
+  geom_smooth( aes( colour = Geschlecht), method= 'lm' ) +
   expand_limits(y = 0) +
   theme_ipsum() +
   labs(  title = paste("Sterbefälle pro 1 Mio im Jahr in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
@@ -152,6 +153,10 @@ AG <- RunSQL(SQL)
 plotit (Alter = c(0,59))
 plotit (Alter = c(0,100))
 plotit (Alter = c(60,100))
+
+plotit (Alter = c(15,34))
+plotit (Alter = c(35,59))
+plotit (Alter = c(60,79))
 
 for (i in 1:(nrow(AG))) {
 

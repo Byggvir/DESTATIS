@@ -1,6 +1,10 @@
 #!/bin/bash
 
 sudo apt install \
+    r-base \
+    r-base-dev \
+    r-cran-rcmdr \
+    r-cran-rcmdr \
     gnumeric \
     libxml2-dev \
     libfontconfig1-dev \
@@ -8,4 +12,12 @@ sudo apt install \
     libfreetype6-dev \
     libpng-dev \
     libtiff5-dev \
-    libjpeg-dev
+    libjpeg-dev \
+    libharfbuzz-dev \
+    libfribidi-dev \
+    libcairo2-dev \
+    libxt-dev \
+    libmariadb-dev
+    
+    
+    

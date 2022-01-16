@@ -6,7 +6,7 @@ RunSQL <- function (
   SQL = 'select * from Faelle;'
   , prepare="set @i := 1;") {
   
-  rmariadb.settingsfile <- "/data/git/R/DESTATIS/SQL/DESTATIS.cnf"
+  rmariadb.settingsfile <- "SQL/DESTATIS.cnf"
   
   rmariadb.db <- "DESTATIS"
   

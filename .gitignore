@@ -1,5 +1,10 @@
 # png
 png/*.png
+png/*/*.png
+
+# File with SQL password
+
+SQL/DESTATIS.cnf
 
 # ODS Logs
 .~lock.*,ods

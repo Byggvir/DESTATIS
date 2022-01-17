@@ -228,4 +228,16 @@ end
 
 delimiter ; 
 
+create or replace view `StdBevBL` as
+
+select 
+      `DT124110013`.`IdBundesland` AS `IdBundesland`
+    , `DT124110013`.`Stichtag` AS `Stichtag`
+    , sum(`DT124110013`.`Anzahl`) AS `Anzahl` 
+from `DT124110013` 
+group by 
+    `DT124110013`.`IdBundesland`
+    , `DT124110013`.`Stichtag`
+;
+
 call CreateStdBev();

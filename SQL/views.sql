@@ -81,6 +81,16 @@ group by
     , `SterbefaelleWoche`.`Kw`
 ;
 
+create or replace view `SterbefaelleWocheMedian` AS 
+select distinct
+      `Kw` AS `Kw`
+    , median(Anzahl) over (partition by Kw) AS Median 
+from `SterbefaelleProWoche` 
+where 
+    Jahr > 2015
+    and Jahr < 2020
+
+;
 
 create or replace view SterbeRateMonat as 
     select 
@@ -88,11 +98,13 @@ create or replace view SterbeRateMonat as
         , Geschlecht as Geschlecht
         , AlterVon
         , AlterBis
+        , Gestorbene
+        , Einwohner
         , avg(Gestorbene/Einwohner) as SterbeRate
         , stddev(Gestorbene/Einwohner) as StdDevSterbeRate
     from SterbefaelleMonatBev
     where 
-        Jahr < 2020 
+        Jahr < 2020
         and Jahr > 2015
     group by
           Monat
@@ -114,7 +126,7 @@ create or replace view SchaetzeSterbefaelle as
         , S.SterbeRate * M.Einwohner as ErwGestorbene
         , S.StdDevSterbeRate * M.Einwohner as Abweichung
         
-    from SterbefaelleMonatBev as M 
+    from SterbefaelleMonatBev as M
     join SterbeRateMonat as S 
     on 
             M.Monat = S.Monat
@@ -139,6 +151,5 @@ create or replace view SchaetzeSterbefaelleJahr as
     from SchaetzeSterbefaelle
     group by
         Jahr;
-
-select * from SchaetzeSterbefaelleJahr;
         
+select * from SchaetzeSterbefaelleJahr where Jahr > 2017;

@@ -52,7 +52,6 @@ require(data.table)
 
 source("R/lib/myfunctions.r")
 source("R/lib/sql.r")
-source("R/lib/color_palettes.r")
 
 citation <- "© Thomas Arend, 2021\nQuelle: © Statistisches Bundesamt (Destatis), 2021\nStand 07.10.2021"
 

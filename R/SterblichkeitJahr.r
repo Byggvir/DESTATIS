@@ -83,7 +83,7 @@ Sterbefaelle %>% ggplot(
   aes( x = Jahr, y = Gestorbene / Einwohner * 1000000 )) +
   geom_line( aes( colour = Geschlecht)) +
   geom_smooth( aes( colour = Geschlecht), method= 'lm' ) +
-  expand_limits(y = 0) +
+ # expand_limits(y = 0) +
   theme_ipsum() +
   labs(  title = paste("Sterbefälle pro 1 Mio im Jahr in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
          , subtitle= paste("Deutschland, Stand:", heute)
@@ -105,7 +105,7 @@ Sterbefaelle %>% ggplot(
   aes( x = Jahr, y = Gestorbene, group = Geschlecht )) +
   geom_line( aes( colour = Geschlecht)) +
   geom_smooth( aes( colour = Geschlecht), method= 'lm' ) +
-  expand_limits(y = 0) +
+ # expand_limits(y = 0) +
   theme_ipsum() +
   labs(  title = paste("Sterbefälle im Jahr in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
          , subtitle= paste("Deutschland, Stand:", heute)
@@ -127,7 +127,7 @@ ggsave(paste( outdir, 'Jahr_abs_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
 Sterbefaelle %>% ggplot(
   aes( x = Jahr, y = Gestorbene / Einwohner * 1000000, fill = Geschlecht )) +
   geom_bar(position="dodge", stat="identity") +
-  expand_limits(y = 0) +
+  # expand_limits(y = 0) +
   theme_ipsum() +
   labs(  title = paste("Sterbefälle pro 1 Mio im Jahr in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
          , subtitle= paste("Deutschland, Stand:", heute)
@@ -152,6 +152,7 @@ AG <- RunSQL(SQL)
 
 plotit (Alter = c(0,59))
 plotit (Alter = c(0,100))
+plotit (Alter = c(0,80))
 plotit (Alter = c(60,100))
 
 plotit (Alter = c(15,34))

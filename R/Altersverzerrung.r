@@ -201,7 +201,7 @@ MT %>% ggplot(
   aes( x = Kw )) +
   # geom_line( aes( y = Mortality1, colour = 'Mortalität 80-84' )) +
   # geom_line( aes( y = Mortality2, colour = 'Mortalität 85+' )) +
-  #geom_line( aes( y = Mortality, colour = '80+ Real' ), size = 1) +
+  # geom_line( aes( y = Mortality, colour = '80+ Real' ), size = 1) +
   geom_line( aes( y = Mortality_All, colour = '80+' ), size = 2) +
   geom_line( aes( y = Mortality_1Dose, colour = '80+ 1st Dose' )) +
   geom_line( aes( y = Mortality_Vaccinated, colour = '80+ Vaccinated' )) +

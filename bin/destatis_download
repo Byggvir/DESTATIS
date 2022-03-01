@@ -81,7 +81,7 @@ function fdownload {
 
 }
 
-#fdownload  "${URL1}" "${DAT}/sonderauswertung-sterbefaelle.xlsx"
-#fdownload  "${URL2}" "${DAT}/sonderauswertung-sterbefaelle-endgueltige-daten.xlsx"
+fdownload  "${URL1}" "${DAT}/sonderauswertung-sterbefaelle.xlsx"
+fdownload  "${URL2}" "${DAT}/sonderauswertung-sterbefaelle-endgueltige-daten.xlsx"
 
 sonderauswertung

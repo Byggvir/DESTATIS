@@ -8,7 +8,7 @@
 # E-Mail: thomas@arend-rhb.de
 #
 
-MyScriptName <- "SterblichkeitMonat"
+MyScriptName <- "ErwSterbefaelle"
 
 library(tidyverse)
 library(REST)
@@ -51,10 +51,9 @@ dir.create( outdir , showWarnings = TRUE, recursive = FALSE, mode = "0777")
 require(data.table)
 
 source("R/lib/myfunctions.r")
+source("R/lib/mytheme.r")
 source("R/lib/sql.r")
-source("R/lib/color_palettes.r")
 
-citation <- "© Thomas Arend, 2021\nQuelle: © Statistisches Bundesamt (Destatis), 2021\nStand 07.10.2021"
 
 options( 
   digits = 7
@@ -66,20 +65,23 @@ options(
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
 
-SQL <- paste( 'select Jahr, Monat, Geschlecht, sum(Gestorbene) as Gestorbene, sum(ErwGestorbene) as ErwGestorbene from SchaetzeSterbefaelle where Jahr > 2019 group by Jahr, Monat, Geschlecht;')
+citation <- paste("© Thomas Arend, 2021\nQuelle: © Statistisches Bundesamt (Destatis), 2022\nStand", heute)
+
+
+SQL <- paste( 'select Jahr, Monat, Geschlecht, sum(Gestorbene) as Gestorbene, sum(ErwGestorbene) as ErwGestorbene from SchaetzeSterbefaelle where Jahr > 2020 group by Jahr, Monat, Geschlecht;')
 
 Sterbefaelle <- RunSQL( SQL )
 
 Sterbefaelle %>% ggplot(
   aes( x = Monat ) ) +
-  geom_line( aes( y= ErwGestorbene, colour = Geschlecht), linetype = 'dotted'  ) +
-  geom_line( aes( y= Gestorbene, colour = Geschlecht)) +
+  geom_line( aes( y = ErwGestorbene, colour = Geschlecht), linetype = 'dotted'  ) +
+  geom_line( aes( y = Gestorbene, colour = Geschlecht)) +
 
 #  expand_limits(y = 0) +
   facet_wrap(vars(Jahr)) +
   theme_ipsum() +
   labs(  title = paste("Sterbefälle und erwartete Sterbefälle")
-         , subtitle= paste("Deutschland, Stand:", heute)
+         , subtitle= paste("Deutschland, Stand:", heute, 'auf Basis der Sterbefälle 2016 - 2019')
          , colour  = "Geschlecht"
          , x ="Monat"
          , y = "Anzahl"

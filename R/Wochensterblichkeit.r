@@ -8,7 +8,7 @@
 # E-Mail: thomas@arend-rhb.de
 #
 
-MyScriptName <- "Uebersterblichkeit"
+MyScriptName <- "Wochensterblichkeit"
 
 library(tidyverse)
 library(REST)

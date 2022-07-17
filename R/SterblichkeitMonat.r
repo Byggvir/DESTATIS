@@ -53,7 +53,7 @@ require(data.table)
 source("R/lib/myfunctions.r")
 source("R/lib/sql.r")
 
-citation <- "© Thomas Arend, 2021\nQuelle: © Statistisches Bundesamt (Destatis), 2021\nStand 07.10.2021"
+citation <- "© Thomas Arend, 2022\nQuelle: © Statistisches Bundesamt (Destatis), 2022"
 
 options( 
   digits = 7

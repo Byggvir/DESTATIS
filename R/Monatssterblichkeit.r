@@ -52,7 +52,7 @@ source("R/lib/myfunctions.r")
 source("R/lib/mytheme.r")
 source("R/lib/sql.r")
 
-citation <- "© Thomas Arend, 2021\nQuelle: © Statistisches Bundesamt (Destatis), 2021\nStand 07.10.2021"
+citation <- "© Thomas Arend, 2021-2022\nQuelle: © Statistisches Bundesamt (Destatis), 2022\nStand 16.06.2022"
 
 options( 
   digits = 7

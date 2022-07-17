@@ -82,7 +82,7 @@ Sterbefaelle <- RunSQL( SQL )
 Sterbefaelle %>% ggplot(
   aes( x = Jahr, y = Gestorbene / Einwohner * 1000000 )) +
   geom_line( aes( colour = Geschlecht)) +
-  geom_smooth( aes( colour = Geschlecht), method= 'lm' ) +
+  geom_smooth( aes( colour = Geschlecht), method= 'lm', formula = y ~ x ) +
  # expand_limits(y = 0) +
   theme_ipsum() +
   labs(  title = paste("Sterbefälle pro 1 Mio im Jahr in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
@@ -104,7 +104,7 @@ ggsave(paste( outdir, 'Jahr_rel_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
 Sterbefaelle %>% ggplot(
   aes( x = Jahr, y = Gestorbene, group = Geschlecht )) +
   geom_line( aes( colour = Geschlecht)) +
-  geom_smooth( aes( colour = Geschlecht), method= 'lm' ) +
+  geom_smooth( aes( colour = Geschlecht), method= 'lm' , formula = y ~ x) +
  # expand_limits(y = 0) +
   theme_ipsum() +
   labs(  title = paste("Sterbefälle im Jahr in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')

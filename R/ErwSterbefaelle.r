@@ -74,7 +74,7 @@ Sterbefaelle <- RunSQL( SQL )
 
 Sterbefaelle %>% ggplot(
   aes( x = Monat ) ) +
-  geom_line( aes( y = ErwGestorbene, colour = Geschlecht), linetype = 'dotted'  ) +
+  geom_line( aes( y = ErwGestorbene, colour = Geschlecht), linetype = 'dashed'  ) +
   geom_line( aes( y = Gestorbene, colour = Geschlecht)) +
 
 #  expand_limits(y = 0) +

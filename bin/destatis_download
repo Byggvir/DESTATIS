@@ -23,10 +23,10 @@ TMP=/tmp
 function sonderauswertung {
 
     ssconvert  -S --export-type=Gnumeric_stf:stf_csv \
-        "${DAT}/sonderauswertung-sterbefaelle.xlsx" "${TMP}/sat_%n.csv"
+        "${DAT}/sonderauswertung-sterbefaelle.xlsx" "${TMP}/sat_%n.csv" &>/dev/null
 
     ssconvert  -S --export-type=Gnumeric_stf:stf_csv \
-        "${DAT}/sonderauswertung-sterbefaelle-endgueltige-daten.xlsx" "${TMP}/sae_%n.csv"
+        "${DAT}/sonderauswertung-sterbefaelle-endgueltige-daten.xlsx" "${TMP}/sae_%n.csv" &>/dev/null
         
     (
     
@@ -72,12 +72,9 @@ function sonderauswertung {
 
 function fdownload {
 
-    # Download CSV File if it does not exists
-    # -- Does not work with DESTATIS --
-    # -- Download files manually from the web-site
+    # Download File
     
-    [ ! -e "$2" ] && curl --output "$2" --url "$1"
-
+    curl --output "$2" --url "$1"
 
 }
 

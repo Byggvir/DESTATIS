@@ -8,7 +8,7 @@
 # E-Mail: thomas@arend-rhb.de
 #
 
-MyScriptName <- "ErwSterbefaelle"
+MyScriptName <- "Sterbefaelle pro Woche"
 
 library(tidyverse)
 library(REST)
@@ -66,19 +66,19 @@ options(
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
 
-SQL <- paste( 'select * from SterbefaelleProWoche where Jahr > 2017 and Kw < 53; ')
+SQL <- paste( 'select S.Jahr, S.Kw, S.Anzahl, M.Median from SterbefaelleProWoche as S join SterbefaelleWocheMedian as M on S.Kw = M.Kw where S.Jahr > 2019 and S.Kw < 53 order by S.Jahr, S.Kw; ')
 Sterbefaelle <- RunSQL( SQL )
 
-SQL <- paste( 'select * from SterbefaelleWocheMedian where Kw < 53;')
-Median <- RunSQL( SQL )
+# SQL <- paste( 'select * from SterbefaelleWocheMedian where Kw < 53 order by Kw;')
+# Median <- RunSQL( SQL )
 
 Sterbefaelle$Jahr <- paste('Jahr', Sterbefaelle$Jahr)
 
 Sterbefaelle %>% ggplot(
   aes( x = Kw ) ) +
   geom_line( aes( y = Anzahl, group = Jahr, colour = Jahr)) +
-  geom_line( data = Median, aes( x = Kw, y = Median, colour = 'Median'), size = 1.5) +
-  
+  geom_line( aes( x = Kw, y = Median, colour = 'Median 2016 - 2019'), linetype = 'dashed', size = 1.5) +
+  facet_wrap(vars(Jahr)) +
 #  expand_limits(y = 0) +
   theme_ipsum() +
   labs(  title = paste("Sterbefälle pro Woche")
@@ -91,6 +91,34 @@ Sterbefaelle %>% ggplot(
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
 
 ggsave(paste( outdir, 'SterbefaelleProWoche', '.png', sep='')
+       , device = "png"
+       , bg = "white"
+       , width = 3840
+       , height = 2160
+       , units = "px"
+)
+
+Excess <- sum(Sterbefaelle$Anzahl - Sterbefaelle$Median)
+print(sum(Sterbefaelle$Anzahl))
+print(sum(Sterbefaelle$Median))
+print(Excess)
+
+Sterbefaelle %>% ggplot(
+  aes( x = Kw ) ) +
+  geom_line( aes( y = Anzahl - Median, group = Jahr, colour = Jahr)) +
+  facet_wrap(vars(Jahr)) +
+  #  expand_limits(y = 0) +
+  theme_ipsum() +
+  labs(  title = paste("Übersterblichkeit pro Woche")
+         , subtitle= paste("Deutschland, Stand:", heute)
+         , colour  = "Jahr"
+         , x = "Kw"
+         , y = "Anzahl"
+         , caption = citation ) +
+  #  scale_x_continuous(breaks=1:12,minor_breaks = seq(1, 12, 1),labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
+  scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
+
+ggsave(paste( outdir, 'SterbefaelleProWoche_X', '.png', sep='')
        , device = "png"
        , bg = "white"
        , width = 3840

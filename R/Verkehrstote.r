@@ -65,7 +65,7 @@ options(
 )
 
 
-url <- "https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Verkehrsunfaelle/Tabellen/getoetete-alter.html"
+url <- "https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Verkehrsunfaelle/Tabellen/verkehrstote-nach-alter.html"
 verkehrstote <- htmltab(doc = url, which = 1)
 write_ods(
   x = verkehrstote,

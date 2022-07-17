@@ -8,7 +8,7 @@
 # E-Mail: thomas@arend-rhb.de
 #
 
-MyScriptName <- "ErwSterbefaelle"
+MyScriptName <- "ErwSterbefaelle_ab_2000"
 
 library(tidyverse)
 library(REST)
@@ -53,7 +53,7 @@ require(data.table)
 source("R/lib/myfunctions.r")
 source("R/lib/sql.r")
 
-citation <- "© Thomas Arend, 2021\nQuelle: © Statistisches Bundesamt (Destatis), 2021\nStand 07.10.2021"
+citation <- "© Thomas Arend, 2022\nQuelle: © Statistisches Bundesamt (Destatis), 2022"
 
 options( 
   digits = 7
@@ -66,41 +66,25 @@ options(
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
 
-SQL <- paste( 'select Jahr,sum(Gestorbene) as Gestorbene from SterbefaelleJahr where Jahr > 2011 group by Jahr;')
+SQL <- paste( 'select * from SchaetzeSterbefaelleJahr;')
 Sterbefaelle <- RunSQL( SQL )
-Sterbefaelle$LfdJahr <-Sterbefaelle$Jahr -min(Sterbefaelle$Jahr)
-
-ra <- lm( Gestorbene ~ LfdJahr , data = Sterbefaelle %>% filter(Jahr < 2020))
-
-CI <- 0.95
-ci <- confint(ra, level = CI)
-
-a <- c( ci[1,1], ra$coefficients[1] , ci[1,2])
-b <- c( ci[2,1], ra$coefficients[2] , ci[2,2])
- print(a)
- print(b)
-
 
 Sterbefaelle %>% ggplot(
   aes( x = Jahr ) ) +
-  geom_line( aes( y = Gestorbene) ) +
-  geom_smooth( aes( y = Gestorbene), method = 'lm', color = 'red') +
-  geom_smooth( aes( y = Gestorbene), method = 'lm', color = 'blue', data =  Sterbefaelle %>% filter(Jahr < 2020)) +
-
+  geom_line( aes( y = Gestorbene, colour = "Gestorbene") ) +
+  geom_line( aes( y = ErwGestorbene, colour = "Erwartet" ) ) +
   theme_ipsum() +
-  expand_limits( y = a[1] ) +
-  expand_limits( y = a[3] ) +
-
-  labs(  title = paste("Sterbefälle pro Jahr")
-         , subtitle= paste("Deutschland, Stand:", heute, 'auf Basis der Sterbefälle 2016 - 2019')
+ 
+  labs(  title = paste("Erwartete und geschätze Sterbefälle pro Jahr")
+         , subtitle= paste("Deutschland, Stand:", heute, '\nBasis: stratifizierte Sterberate (Alter/Geschlecht) 2016 - 2019')
          , colour  = "Geschlecht"
-         , x = "Monat"
+         , x = "Jahr"
          , y = "Anzahl"
          , caption = citation ) +
-  scale_x_continuous(breaks=1:12,minor_breaks = seq(1, 12, 1),labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
+  scale_x_continuous(labels=function(x) format(x, big.mark = "", decimal.mark= ',', scientific = FALSE)) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
 
-ggsave(paste( outdir, 'ErwSterbefaelleJahr2', '.png', sep='')
+ggsave(paste( outdir, 'ErwSterbefaelleJahr_ab_2000', '.png', sep='')
        , device = "png"
        , bg = "white"
        , width = 3840

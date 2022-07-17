@@ -84,7 +84,7 @@ group by
 create or replace view `SterbefaelleWocheMedian` AS 
 select distinct
       `Kw` AS `Kw`
-    , median(Anzahl) over (partition by Kw) AS Median 
+    , median(Anzahl) over (partition by Kw) AS Median15_20 
 from `SterbefaelleProWoche` 
 where 
     Jahr > 2015

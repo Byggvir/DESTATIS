@@ -80,7 +80,7 @@ Bis <- max(Selbstmorde$Jahr)
 Selbstmorde %>% ggplot(
   aes( x = Jahr, y = Anzahl, colour = Geschlecht ) ) +
   geom_line( aes( colour = Geschlecht ) ) +
-  geom_smooth( aes( colour = Geschlecht ) ) +
+  geom_smooth( aes( colour = Geschlecht ), method = 'loess', formula = 'y ~ x' ) +
   expand_limits( y = 0 ) +
   theme_ta() +
   labs(  title = paste('Selbstmorde, Deutschland ', Von, 'bis', Bis  )
@@ -102,7 +102,7 @@ ggsave(paste( outdir,'Abs_Insgesamt', '.png', sep='')
 Selbstmorde %>% ggplot(
   aes( x = Jahr, y = Anzahl / PersonenZahl * 100000, colour = Geschlecht ) ) +
   geom_line( aes( colour = Geschlecht ) ) +
-  geom_smooth( aes( colour = Geschlecht ) ) +
+  geom_smooth( aes( colour = Geschlecht ), method = 'loess', formula = 'y ~ x') +
   expand_limits(y = 0) +
   theme_ta() +
   labs(  title = paste('Selbstmordrate, Deutschland ', Von, 'bis', Bis  )
@@ -123,7 +123,7 @@ ggsave(paste( outdir,'Rel_Insgesamt', '.png', sep='')
 
 Selbstmorde %>% ggplot( aes( x = Jahr, y = PersonenZahl ) ) +
   geom_line( aes( colour = Geschlecht ) ) +
-  geom_smooth( aes( colour = Geschlecht ) ) +
+  geom_smooth( aes( colour = Geschlecht ), method = 'loess', formula = 'y ~ x' ) +
   # expand_limits(y = 0) +
   theme_ta() +
   labs(  title = paste('Bevölkerung Deutschland', Von, 'bis', Bis )
@@ -151,7 +151,7 @@ Bis <- max(Selbstmorde$Jahr)
 
 Selbstmorde %>% ggplot( aes( x = Jahr, y = StdAnzahl, colour = Geschlecht ) ) +
   geom_line( aes( colour = Geschlecht ) ) +
-  geom_smooth( aes( colour = Geschlecht ) ) +
+  geom_smooth( aes( colour = Geschlecht ), method = 'loess', formula = 'y ~ x' ) +
   expand_limits(y = 0) +
   theme_ta() +
   labs(  title = paste('Standardisierte Sterbefälle Deutschland', Von, 'bis', Bis )
@@ -185,7 +185,7 @@ for (A in AG ) {
 Selbstmorde %>% filter(Altersgruppe == A) %>% ggplot(
   aes( x = Jahr, y = Anzahl ) ) +
   geom_line( aes( colour = Geschlecht ) ) +
-  geom_smooth( aes( colour = Geschlecht )) +
+  geom_smooth( aes( colour = Geschlecht ), method = 'loess', formula = 'y ~ x' ) +
   expand_limits(y = 0) +
 theme_ta() +
   labs(  title = paste('Jährliche Sebstmorde, Deutschland', Von, 'bis', Bis)
@@ -209,7 +209,7 @@ ggsave(  paste( outdir,'Abs_', A, '.png', sep='' )
 Selbstmorde %>% filter(Altersgruppe == A) %>% ggplot(
   aes( x = Jahr, y = SuizidRate ) ) +
   geom_line( aes( colour = Geschlecht ) ) +
-  geom_smooth( aes( colour = Geschlecht ) ) +
+  geom_smooth( aes( colour = Geschlecht ), method = 'loess', formula = 'y ~ x' ) +
   expand_limits(y = 0) +
   theme_ta() +
   labs(  title = paste('Sebstmordrate pro 100.000, Deutschland ', Von, 'bis', Bis )

@@ -152,4 +152,4 @@ create or replace view SchaetzeSterbefaelleJahr as
     group by
         Jahr;
         
-select * from SchaetzeSterbefaelleJahr where Jahr > 2017;
+# select * from SchaetzeSterbefaelleJahr where Jahr > 2017;

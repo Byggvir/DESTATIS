@@ -62,7 +62,7 @@ options(
 
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
-citation <- paste( '© Thomas Arend, 2021\nQuelle: © Statistisches Bundesamt (Destatis), 2021\nStand:', heute )
+citation <- paste( '© Thomas Arend, 2022\nQuelle: © Statistisches Bundesamt (Destatis), 2022\nStand:', heute )
                   
                   
 plotit <- function (Alter =c(60,120) ) { 
@@ -86,7 +86,7 @@ Sterbefaelle %>% ggplot(
  # expand_limits(y = 0) +
   theme_ipsum() +
   labs(  title = paste("Sterbefälle pro 1 Mio im Jahr in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
-         , subtitle= paste("Deutschland, Stand:", heute)
+         , subtitle= paste("Deutschland von", min(Sterbefaelle$Jahr), "bis", min(Sterbefaelle$Jahr) )
          , colour  = "Geschlecht"
          , x ="Jahr"
          , y = "Anzahl pro 1 Mio"

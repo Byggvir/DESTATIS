@@ -79,7 +79,7 @@ Sterbefaelle <- RunSQL( SQL )
 Sterbefaelle$Geschlecht[Sterbefaelle$Geschlecht == 'M'] <- 'Männer'
 Sterbefaelle$Geschlecht[Sterbefaelle$Geschlecht == 'F'] <- 'Frauen'
 
-Sterbefaelle %>% filter(Jahr >= 2010) %>% ggplot(
+Sterbefaelle %>% filter(Jahr >= 2017 & Jahr <=2018) %>% ggplot(
   aes( x = Kw )) +
   geom_line( aes(y= Gestorbene / Einwohner * 1000000, colour = Geschlecht)) +
   expand_limits(y = 0) +
@@ -94,7 +94,7 @@ Sterbefaelle %>% filter(Jahr >= 2010) %>% ggplot(
 #  scale_x_continuous(breaks=1:53,minor_breaks = seq(1, 53, 1) ) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
 
-ggsave(paste( outdir, 'Woche_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
+ggsave(paste( outdir, 'Woche_1718_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
        , device = "png"
        , bg = "white"
        , width = 3840, height = 2160

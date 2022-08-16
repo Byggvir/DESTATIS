@@ -81,7 +81,7 @@ b <- c( ci[2,1], ra$coefficients[2] , ci[2,2])
  print(b)
 
 
-Sterbefaelle %>% ggplot(
+Sterbefaelle %>% filter(Jahr < 2022) %>% ggplot(
   aes( x = Jahr ) ) +
   geom_line( aes( y = Gestorbene) ) +
   geom_smooth( aes( y = Gestorbene), method = 'lm', color = 'red') +
@@ -94,10 +94,11 @@ Sterbefaelle %>% ggplot(
   labs(  title = paste("Sterbefälle pro Jahr")
          , subtitle= paste("Deutschland, Stand:", heute, 'auf Basis der Sterbefälle 2016 - 2019')
          , colour  = "Geschlecht"
-         , x = "Monat"
+         # , x = "Monat"
          , y = "Anzahl"
          , caption = citation ) +
-  scale_x_continuous(breaks=1:12,minor_breaks = seq(1, 12, 1),labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
+  scale_x_continuous(labels=function(x) format(x, big.mark = "", decimal.mark= ',', scientific = FALSE)) -> pp
+
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
 
 ggsave(paste( outdir, 'ErwSterbefaelleJahr2', '.png', sep='')

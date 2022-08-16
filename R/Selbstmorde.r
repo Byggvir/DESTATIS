@@ -11,7 +11,7 @@
 MyScriptName <- "Selbstmorde"
 
 library(tidyverse)
-library(REST)
+# library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -154,7 +154,7 @@ Selbstmorde %>% ggplot( aes( x = Jahr, y = StdAnzahl, colour = Geschlecht ) ) +
   geom_smooth( aes( colour = Geschlecht ), method = 'loess', formula = 'y ~ x' ) +
   expand_limits(y = 0) +
   theme_ta() +
-  labs(  title = paste('Standardisierte Sterbefälle Deutschland', Von, 'bis', Bis )
+  labs(  title = paste('Standardisierte Selbstmorde Deutschland', Von, 'bis', Bis )
          , subtitle= paste( 'Alle Altersgruppen'  )
          , colour  = "Geschlecht"
          , x = "Jahr"

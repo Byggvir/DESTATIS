@@ -80,12 +80,10 @@ Sterbefaelle <- RunSQL( SQL )
 
 S <- Sterbefaelle %>% filter( Jahr < 2020 )
 
-Sterbefaelle$Geschlecht[Sterbefaelle$Geschlecht == 'M'] <- 'Männer'
-Sterbefaelle$Geschlecht[Sterbefaelle$Geschlecht == 'F'] <- 'Frauen'
+Sterbefaelle$Geschlecht <- factor(Sterbefaelle$Geschlecht,levels = c( 'F','M'), labels = c('Frauen','Männer'))
 
-
-meanMale <- mean(S$Gestorbene[S$Geschlecht == 'M'] / S$Einwohner[S$Geschlecht == 'M']) * 1000000
-meanFemale <- mean(S$Gestorbene[S$Geschlecht == 'F'] / S$Einwohner[S$Geschlecht == 'F']) * 1000000
+meanMale <- mean(S$Gestorbene[S$Geschlecht == 'Männer'] / S$Einwohner[S$Geschlecht == 'Männer']) * 1000000
+meanFemale <- mean(S$Gestorbene[S$Geschlecht == 'Frauen'] / S$Einwohner[S$Geschlecht == 'Frauen']) * 1000000
 
 Sterbefaelle %>% ggplot(
   aes( x = Monat, y = Gestorbene / Einwohner *1000000, colour = Geschlecht )) +

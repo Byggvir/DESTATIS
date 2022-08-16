@@ -81,32 +81,32 @@ IGNORE 0 ROWS;
 
 ;
 
---drop table if exists SterbeAGW;
---drop table if exists SterbeAGM;
+drop table if exists SterbeAGW;
+drop table if exists SterbeAGM;
 
---create table SterbeAGW
-    --( Jahr INT(11)
-    --, AlterVon INT(11)
-    --, AlterBis INT(11)
-    --, primary key ( Jahr, AlterVon )
-    --)
---select distinct 
-    --Jahr,
-    --AlterVon,
-    --AlterBis 
---from SterbefaelleWoche;
+create table SterbeAGW
+    ( Jahr INT(11)
+    , AlterVon INT(11)
+    , AlterBis INT(11)
+    , primary key ( Jahr, AlterVon )
+    )
+select distinct 
+    Jahr,
+    AlterVon,
+    AlterBis 
+from SterbefaelleWoche;
 
---create table SterbeAGM
-    --( Jahr INT(11)
-    --, AlterVon INT(11)
-    --, AlterBis INT(11)
-    --, primary key ( Jahr, AlterVon )
-    --)
---select distinct 
-    --Jahr,
-    --AlterVon,
-    --AlterBis 
---from SterbefaelleMonat;
+create table SterbeAGM
+    ( Jahr INT(11)
+    , AlterVon INT(11)
+    , AlterBis INT(11)
+    , primary key ( Jahr, AlterVon )
+    )
+select distinct 
+    Jahr,
+    AlterVon,
+    AlterBis 
+from SterbefaelleMonat;
 
 --
 -- Erstellen der modifizierten Tabelle der Bevölkerung 
@@ -265,7 +265,7 @@ create or replace view SterbefaelleMonatBev as
 select * from (
 select 
     str_to_date(concat(M.Jahr, '-', M.Monat, '-',1),'%Y-%c-%e') as Datum
-    , M. Jahr as Jahr
+    , M.Jahr as Jahr
     , M.Monat as Monat
     , M.Geschlecht as Geschlecht
     , M.AlterVon as AlterVon

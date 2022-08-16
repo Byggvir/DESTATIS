@@ -1,10 +1,8 @@
 Wochentage <- c("Mo","Di","Mi","Do","Fr","Sa","So")
+WochentageLang <- c("Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag")
+Monate <- c("Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember")
 
-RZahl <- function (b, SeriellesIntervall = 4) {
-  
-  return (round(exp(SeriellesIntervall*b),3))
-  
-}
+library(lubridate)
 
 limbounds <- function (x, zeromin=TRUE) {
   
@@ -21,4 +19,16 @@ limbounds <- function (x, zeromin=TRUE) {
   
   # print(factor)
   return ( c(floor(range[1]/factor),ceiling(range[2]/factor)) * factor) 
+}
+
+KwToDate <- function ( Jahr , Kw ) {
+  
+  R <- as.Date (paste(Jahr,'-01-01',sep = ''))
+  
+  w <- lubridate::wday(R, week_start = 1)
+  
+  R[ w > 4 ] <- R[ w > 4 ] + Kw[ w > 4 ] * 7 + 4  - w[ w > 4 ]
+  R[ w <= 4 ] <- R[ w <= 4 ] + ( Kw[ w <= 4 ] - 1 ) * 7 + (4 - w [ w <= 4 ]) 
+  return (R)
+    
 }

@@ -52,8 +52,6 @@ source("R/lib/myfunctions.r")
 source("R/lib/mytheme.r")
 source("R/lib/sql.r")
 
-citation <- "© Thomas Arend, 2021-2022\nQuelle: © Statistisches Bundesamt (Destatis), 2022\nStand 16.06.2022"
-
 options( 
   digits = 7
   , scipen = 7
@@ -63,19 +61,22 @@ options(
 
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
+citation <- paste("© Thomas Arend, 2021-2022\nQuelle: © Statistisches Bundesamt (Destatis), 2022\nStand:", heute)
 
-SQL <- 'select Jahr, Monat, Geschlecht, AlterVon, Gestorbene / Einwohner Sterberate from SterbefaelleMonatBev where Jahr > 2015;'
+
+SQL <- 'select Jahr, Monat, Geschlecht, AlterVon, Gestorbene / Einwohner Sterberate from SterbefaelleMonatBev ;'
 
 Sterbefaelle <- RunSQL( SQL )
+Sterbefaelle$Geschlecht <- factor(Sterbefaelle$Geschlecht,levels = c( 'F','M'), labels = c('Frauen','Männer'))
+Sterbefaelle$Monat <- factor(Sterbefaelle$Monat, levels = 1:12, labels = Monate)
 
 Sterbefaelle %>% ggplot(
-  aes( x = AlterVon, y = Sterberate, colour = Geschlecht )) +
-  geom_point() +
-  geom_smooth() +
-  facet_wrap(vars(Jahr)) +
+  aes( x = AlterVon, y = Sterberate, group = AlterVon )) +
+  geom_boxplot() +
+  facet_wrap(vars(Monat)) +
   theme_ipsum() +
   labs(  title = paste("Sterbefälle pro Monat pro 1.000")
-         , subtitle= paste("Deutschland, Stand:", heute)
+         , subtitle= paste("Deutschland von", min(Sterbefaelle$Jahr), "bis", max(Sterbefaelle$Jahr))
          , colour  = "Geschlecht"
          , x = "Alter"
          , y = "Anzahl [1/(Monat*1000)]"

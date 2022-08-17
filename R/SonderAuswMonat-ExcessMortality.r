@@ -11,7 +11,6 @@
 MyScriptName <- "SonderAuswMonat-ExcessMortality"
 
 library(tidyverse)
-library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -135,7 +134,7 @@ for ( G in c('Frauen', 'Männer') ) {
     
     # Forecast 
     
-    FC <- forecast(TS, h=30)
+    FC <- forecast(TS, h=31)
     
     # Combine data and forecast
     

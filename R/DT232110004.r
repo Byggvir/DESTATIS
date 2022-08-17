@@ -11,7 +11,6 @@
 MyScriptName <- "DT232110004"
 
 library(tidyverse)
-library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)

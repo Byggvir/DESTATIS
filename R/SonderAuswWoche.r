@@ -61,17 +61,19 @@ options(
   , max.print = 3000
 )
 
+J = 2016
+
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
 
-SQL <- paste( 'select *, date(concat(Jahr,"-",Monat,"-",1)) as Datum from SterbefaelleMonat;' )
+SQL <- paste( 'select *, KwToDate(Jahr,Kw) as Datum from SterbefaelleWoche;' )
 
 Sterbefaelle <- RunSQL( SQL )
 Sterbefaelle$Geschlecht <- factor(Sterbefaelle$Geschlecht,levels = c( 'F','M'), labels = c('Frauen','Männer'))
 
 Sterbefaelle$AG <- paste( " A",Sterbefaelle$AlterVon,"-A", Sterbefaelle$AlterBis, sep = '' )
 
-Sterbefaelle %>% filter(Jahr > 2019) %>% ggplot(
+Sterbefaelle %>% filter(Jahr == J) %>% ggplot(
   aes( x = Datum, y = Gestorbene)) +
   geom_line( aes( colour =  AG) ) +
   scale_x_date( date_labels = "%Y-%b", guide = guide_axis(angle = 90) ) +
@@ -79,15 +81,15 @@ Sterbefaelle %>% filter(Jahr > 2019) %>% ggplot(
   expand_limits(y = 0) +
   facet_wrap(vars(Geschlecht)) +
   theme_ipsum() +
-  labs(  title = paste("Sterbefälle (Monat) nach Altersgruppe und Geschlecht")
+  labs(  title = paste("Sterbefälle (Kalenderwoche) nach Altersgruppe und Geschlecht")
          , subtitle= paste("Deutschland, Stand:", heute)
          , axis.text.x = element_text(angle = -90, hjust = 0)
          , colour  = "Geschlecht"
-         , x = "Monat"
+         , x = "Kalenderwoche"
          , y = "Gestorbene"
          , caption = citation ) -> P1
 
-ggsave(paste( outdir, 'SonderAuswMonat.png', sep='')
+ggsave(paste( outdir, 'SonderAuswWoche',J,'.png', sep='')
        , plot = P1
        , device = "png"
        , bg = "white"

@@ -61,7 +61,7 @@ options(
   , max.print = 3000
 )
 
-J = 2016
+
 
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
@@ -73,10 +73,11 @@ Sterbefaelle$Geschlecht <- factor(Sterbefaelle$Geschlecht,levels = c( 'F','M'), 
 
 Sterbefaelle$AG <- paste( " A",Sterbefaelle$AlterVon,"-A", Sterbefaelle$AlterBis, sep = '' )
 
-Sterbefaelle %>% filter(Jahr == J) %>% ggplot(
+for ( J in c(2003,2019,2022) ) {
+Sterbefaelle %>% filter(Jahr == J &yday(Datum) >=150 & yday(Datum) <= 250) %>% ggplot(
   aes( x = Datum, y = Gestorbene)) +
   geom_line( aes( colour =  AG) ) +
-  scale_x_date( date_labels = "%Y-%b", guide = guide_axis(angle = 90) ) +
+  scale_x_date( date_breaks = '1 month', guide = guide_axis(angle = 90) ) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
   expand_limits(y = 0) +
   facet_wrap(vars(Geschlecht)) +
@@ -93,6 +94,9 @@ ggsave(paste( outdir, 'SonderAuswWoche',J,'.png', sep='')
        , plot = P1
        , device = "png"
        , bg = "white"
-       , width = 3840, height = 2160
+       , width = 1920 
+       , height = 1080
        , units = "px"
+       , dpi = 150
 )
+}

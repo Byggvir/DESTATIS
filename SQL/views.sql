@@ -153,3 +153,13 @@ create or replace view SchaetzeSterbefaelleJahr as
         Jahr;
         
 # select * from SchaetzeSterbefaelleJahr where Jahr > 2017;
+
+create or replace view AvgSterbefaelle as 
+
+select 
+    Jahr as Jahr
+    , avg(Anzahl) as Durchschnitt
+from SterbefaelleTag
+group by 
+    Jahr
+;

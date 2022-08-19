@@ -23,8 +23,3 @@ begin
 end
 
 //
-
-select KwToDate (2019,1);
-select KwToDate (2020,1);
-select KwToDate (2021,1);
-select KwToDate (2022,1);

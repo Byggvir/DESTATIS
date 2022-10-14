@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 #
 #
-# Script: RKI.r
+# Script: DT126120002.r
 #
 # Stand: 2020-10-21
 # (c) 2020 by Thomas Arend, Rheinbach

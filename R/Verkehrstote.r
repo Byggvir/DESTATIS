@@ -11,7 +11,6 @@
 MyScriptName <- "Verkehrstote"
 
 library(tidyverse)
-library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -23,9 +22,6 @@ library(scales)
 library(Cairo)
 library(htmltab)
 library(readODS)
-
-# library(extrafont)
-# extrafont::loadfonts()
 
 # Set Working directory to git root
 

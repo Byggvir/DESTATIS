@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 #
 #
-# Script: RKI.r
+# Script: SterblichkeitWoche.r
 #
 # Stand: 2020-10-21
 # (c) 2020 by Thomas Arend, Rheinbach
@@ -11,7 +11,6 @@
 MyScriptName <- "SterblichkeitWoche"
 
 library(tidyverse)
-library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -22,8 +21,13 @@ library(hrbrthemes)
 library(scales)
 library(ragg)
 
-# library(extrafont)
-# extrafont::loadfonts()
+
+options( 
+  digits = 7
+  , scipen = 7
+  , Outdec = "."
+  , max.print = 3000
+)
 
 # Set Working directory to git root
 
@@ -45,25 +49,18 @@ WD <- paste(SD[1:(length(SD)-1)],collapse='/')
 setwd(WD)
 
 outdir <- 'png/Sterblichkeit/' 
-dir.create( outdir , showWarnings = TRUE, recursive = FALSE, mode = "0777")
+dir.create( outdir , showWarnings = FALSE, recursive = FALSE, mode = "0777")
 
 require(data.table)
 
 source("R/lib/myfunctions.r")
 source("R/lib/sql.r")
 
-
-citation <- "© Thomas Arend, 2021\nQuelle: © Statistisches Bundesamt (Destatis), 2021\nStand 07.10.2021"
-
-options( 
-  digits = 7
-  , scipen = 7
-  , Outdec = "."
-  , max.print = 3000
-)
-
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
+
+citation <- paste('© Thomas Arend, 2022\nQuelle: © Statistisches Bundesamt (Destatis), 2022\nStand' , heute)
+
 
 plotit <- function (Alter =c(60,120) ) { 
 
@@ -79,7 +76,7 @@ Sterbefaelle <- RunSQL( SQL )
 Sterbefaelle$Geschlecht[Sterbefaelle$Geschlecht == 'M'] <- 'Männer'
 Sterbefaelle$Geschlecht[Sterbefaelle$Geschlecht == 'F'] <- 'Frauen'
 
-Sterbefaelle %>% filter(Jahr >= 2017 & Jahr <=2018) %>% ggplot(
+Sterbefaelle %>% filter(Jahr >= 2017 ) %>% ggplot(
   aes( x = Kw )) +
   geom_line( aes(y= Gestorbene / Einwohner * 1000000, colour = Geschlecht)) +
   expand_limits(y = 0) +
@@ -94,7 +91,7 @@ Sterbefaelle %>% filter(Jahr >= 2017 & Jahr <=2018) %>% ggplot(
 #  scale_x_continuous(breaks=1:53,minor_breaks = seq(1, 53, 1) ) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
 
-ggsave(paste( outdir, 'Woche_1718_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
+ggsave(paste( outdir, 'Woche_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
        , device = "png"
        , bg = "white"
        , width = 3840, height = 2160
@@ -106,6 +103,7 @@ SQL <- 'select distinct AlterVon, AlterBis from SterbefaelleWocheBev;'
 AG <- RunSQL(SQL)
 
 plotit (Alter = c(0,59))
+plotit (Alter = c(0,44))
 plotit (Alter = c(0,100))
 plotit (Alter = c(60,100))
 

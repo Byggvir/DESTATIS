@@ -13,7 +13,6 @@ group by
     IdBundesland
     , Altersgruppe;
 
-
 create or replace view `SterbefaelleJahr` as
 select * from (
 select 
@@ -81,7 +80,7 @@ group by
     , `SterbefaelleWoche`.`Kw`
 ;
 
-create or replace view `SterbefaelleWocheMedian` AS 
+create or replace view `SterbefaelleWocheMedian15_20` AS 
 select distinct
       `Kw` AS `Kw`
     , median(Anzahl) over (partition by Kw) AS Median15_20 
@@ -90,6 +89,13 @@ where
     Jahr > 2015
     and Jahr < 2020
 
+;
+
+create or replace view `SterbefaelleWocheMedian` AS 
+select distinct
+      `Kw` AS `Kw`
+    , median(Anzahl) over (partition by Kw) AS Median 
+from `SterbefaelleProWoche` 
 ;
 
 create or replace view SterbeRateMonat as 

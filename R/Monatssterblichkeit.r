@@ -1,9 +1,10 @@
 #!/usr/bin/env Rscript
 #
+# Project: DESTATIS
+# Script: MonatsSterblichkeit.r
 #
-# Script: RKI.r
+# Stand: 2022-09-22
 #
-# Stand: 2020-10-21
 # (c) 2020 by Thomas Arend, Rheinbach
 # E-Mail: thomas@arend-rhb.de
 #
@@ -11,7 +12,6 @@
 MyScriptName <- "MonatsSterblichkeit"
 
 library(tidyverse)
-library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -21,9 +21,6 @@ library(viridis)
 library(hrbrthemes)
 library(scales)
 library(ragg)
-
-# library(extrafont)
-# extrafont::loadfonts()
 
 # Set Working directory to git root
 
@@ -44,13 +41,16 @@ WD <- paste(SD[1:(length(SD)-1)],collapse='/')
 
 setwd(WD)
 
-fPrefix <- "Fallzahlen_Wo_"
+fPrefix <- "Monat"
 
 require(data.table)
 
 source("R/lib/myfunctions.r")
 source("R/lib/mytheme.r")
 source("R/lib/sql.r")
+
+outdir <- 'png/MonatsSterblichkeit/' 
+dir.create( outdir , showWarnings = FALSE, recursive = TRUE, mode = "0777")
 
 options( 
   digits = 7
@@ -64,29 +64,70 @@ heute <- format(today, "%d %b %Y")
 citation <- paste("© Thomas Arend, 2021-2022\nQuelle: © Statistisches Bundesamt (Destatis), 2022\nStand:", heute)
 
 
-SQL <- 'select Jahr, Monat, Geschlecht, AlterVon, Gestorbene / Einwohner Sterberate from SterbefaelleMonatBev ;'
+SQL <- 'select Jahr, Monat, Geschlecht, AlterVon, Gestorbene / Einwohner * 1000000 as Sterberate from SterbefaelleMonatBev ;'
 
 Sterbefaelle <- RunSQL( SQL )
 Sterbefaelle$Geschlecht <- factor(Sterbefaelle$Geschlecht,levels = c( 'F','M'), labels = c('Frauen','Männer'))
-Sterbefaelle$Monat <- factor(Sterbefaelle$Monat, levels = 1:12, labels = Monate)
+Sterbefaelle$Jahre <- factor(Sterbefaelle$Jahr, levels = unique( Sterbefaelle$Jahr ), labels = unique( Sterbefaelle$Jahr ) )
+Sterbefaelle$Monate <- factor(Sterbefaelle$Monat, levels = 1:12, labels = Monate)
+Sterbefaelle$Alter <- factor(Sterbefaelle$AlterVon)
 
-Sterbefaelle %>% ggplot(
-  aes( x = AlterVon, y = Sterberate, group = AlterVon )) +
-  geom_boxplot() +
-  facet_wrap(vars(Monat)) +
+
+
+Sterbefaelle %>% filter( Monat == 7 & AlterVon < 60 ) %>% ggplot(
+  aes( x = Alter, y = Sterberate)) +
+  geom_boxplot(aes(fill = Geschlecht ), alpha = 0.5) +
+  geom_point(data = Sterbefaelle %>% filter(Jahr ==2022 & Monat == 7 & AlterVon < 60 )
+             , aes( x = Alter, y = Sterberate, colour = Geschlecht )
+             , size = 2) +
+#  expand_limits( y = 0 ) +
+  facet_wrap(vars(Geschlecht,Monate), ncol = 4) +
   theme_ipsum() +
-  labs(  title = paste("Sterbefälle pro Monat pro 1.000")
+  labs(  title = paste("Sterbefälle pro Monat pro 1 Mio Einwohner")
          , subtitle= paste("Deutschland von", min(Sterbefaelle$Jahr), "bis", max(Sterbefaelle$Jahr))
          , colour  = "Geschlecht"
-         , x = "Alter"
-         , y = "Anzahl [1/(Monat*1000)]"
+         , x = "Alter ab"
+         , y = "Anzahl [1/(Monat*1.000.000)]"
          , caption = citation ) +
-#  scale_x_continuous(breaks=1:12,labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp6
 
-ggsave(  paste('png/MonatsSterblichkeit','.png', sep='')
+ggsave(  filename =  paste( outdir, fPrefix, '.png', sep='')
          , device = "png"
          , bg = "white"
-         , width = 3840, height = 2160
+         , width = 1920
+         , height = 1080
          , units = "px"
+         , dpi = 144
 )
+
+AG <- unique(Sterbefaelle$AlterVon)
+BG <- c(AG[AG>0]-1,100)
+
+for ( a in 1:length(AG) ) {
+  
+Sterbefaelle %>% filter( AlterVon == AG[a] ) %>% ggplot(
+  aes( x = Monate, y = Sterberate)) +
+  geom_boxplot( alpha = 0.5 ) +
+  geom_point(data = Sterbefaelle %>% filter( Jahr > 2019 & AlterVon == AG[a] )
+             , aes( x = Monate, y = Sterberate, colour = Jahre )
+             , size = 2 ) +
+#  expand_limits( y = 0 ) +
+  facet_wrap(vars(Geschlecht), nrow = 2) +
+  theme_ipsum() +
+  labs(  title = paste("Sterbefälle pro Monat pro 1 Mio Einwohner Alter von ", AG[a], 'bis', BG[a])
+         , subtitle= paste("Deutschland von", min(Sterbefaelle$Jahr), "bis", max(Sterbefaelle$Jahr))
+         , colour  = "Jahr"
+         , x = "Alter"
+         , y = "Anzahl [1/(Monat*1.000.000)]"
+         , caption = citation ) +
+  scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp6
+
+ggsave(  filename =  paste( outdir, fPrefix, '_', AG[a],'-', BG[a], '.png', sep='')
+         , device = "png"
+         , bg = "white"
+         , width = 1920
+         , height = 1080
+         , units = "px"
+         , dpi = 144
+)
+}

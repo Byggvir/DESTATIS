@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 #
-#
-# Script: RKI.r
+# Project: DESTATIS 
+# Script: Wochensterblichkeit.r
 #
 # Stand: 2020-10-21
 # (c) 2020 by Thomas Arend, Rheinbach
@@ -11,7 +11,6 @@
 MyScriptName <- "Wochensterblichkeit"
 
 library(tidyverse)
-library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -21,9 +20,6 @@ library(viridis)
 library(hrbrthemes)
 library(scales)
 library(ragg)
-
-# library(extrafont)
-# extrafont::loadfonts()
 
 # Set Working directory to git root
 
@@ -50,7 +46,11 @@ source("R/lib/myfunctions.r")
 source("R/lib/sql.r")
 source("R/lib/color_palettes.r")
 
-citation <- "© Thomas Arend, 2021\nQuelle: © Statistisches Bundesamt (Destatis), 2021\nStand 07.10.2021"
+outdir <- 'png/WochenSterblichkeit/' 
+dir.create( outdir , showWarnings = FALSE, recursive = TRUE, mode = "0777")
+
+fPrefix <- "Woche"
+
 
 options( 
   digits = 7
@@ -61,75 +61,51 @@ options(
 
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
+citation <- paste('© Thomas Arend,', year(today),'\nQuelle: © Statistisches Bundesamt (Destatis) Stand', heute)
 
-Alter <- c(0,100)
+AG <- RunSQL( 'select distinct AlterVon, AlterBis from SterbefaelleWocheBev;')
 
+AbJahr <- 2000
 SQL1 <- paste( 
-    'select Jahr, Kw, concat("A",AlterVon,"-A",AlterBis) as AG, Geschlecht, '
+  'select Jahr, Kw, AlterVon, AlterBis, Geschlecht, '
   , ' Gestorbene/Einwohner * 100000 as Mortality' 
   , 'from SterbefaelleWocheBev'
   , 'where'
-  , 'AlterVon >=', Alter[1]
-  , 'and'
-  , 'AlterBis <=', Alter[2]
-  , 'and Jahr > 2015'
-  , 'union'
-  , 'select Jahr, Kw, concat("A",AlterVon,"-A",AlterBis) as AG, "beide" as Geschlecht'
-  , ' , sum(Gestorbene)/sum(Einwohner) * 100000 as Mortality'
-  , 'from SterbefaelleWocheBev'
-  , 'where'
-  , 'AlterVon >=', Alter[1]
-  , 'and'
-  , 'AlterBis <=', Alter[2]
-  , 'and Jahr > 2015'
-  , 'group by Jahr, Kw, AG'
-  , 'union'
-  , 'select Jahr, Kw, "All" as AG, Geschlecht'
-  , ' , sum(Gestorbene)/sum(Einwohner) * 100000 as Mortality'
-  , 'from SterbefaelleWocheBev'
-  , 'where'
-  , 'AlterVon >=', Alter[1]
-  , 'and'
-  , 'AlterBis <=', Alter[2]
-  , 'and Jahr > 2015'
-  , 'group by Jahr, Kw, Geschlecht'
-  , 'union'
-  , 'select Jahr, Kw, "All" as AG, "beide" as Geschlecht'
-  , ' , sum(Gestorbene)/sum(Einwohner) * 100000 as Mortality'
-  , 'from SterbefaelleWocheBev'
-  , 'where'
-  , 'AlterVon >=', Alter[1]
-  , 'and'
-  , 'AlterBis <=', Alter[2]
-  , 'and Jahr > 2015'
-  , 'group by Jahr, Kw'
+  , 'Jahr >=', AbJahr
   ,';'
 )
 
-Sterbefaelle <- RunSQL( SQL1 )
-Sterbefaelle$Geschlecht[Sterbefaelle$Geschlecht == 'M'] <- 'Männer'
-Sterbefaelle$Geschlecht[Sterbefaelle$Geschlecht == 'F'] <- 'Frauen'
+WSterbefaelle <- RunSQL( SQL1 )
 
+WSterbefaelle$Geschlechter <- factor(WSterbefaelle$Geschlecht, levels = c('F','M'), labels = c('Frauen','Männer' ))
+WSterbefaelle$Jahre <- factor( WSterbefaelle$Jahr, levels = unique(WSterbefaelle$Jahr), labels = unique(WSterbefaelle$Jahr))
 
-Sterbefaelle %>% filter(AG == 'All') %>% ggplot(
-  aes( x = AG, y = Mortality, colour = Geschlecht)) +
-  geom_boxplot() +
- # expand_limits( y = 0 ) +
-  scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
-  facet_wrap(vars(Geschlecht),ncol=3) +
-  theme_ipsum() +
-  labs(  title = paste("Sterbefälle pro Woche pro 100.000 in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
-         , subtitle= paste("Deutschland, Stand:", heute)
-         , colour  = "Geschlecht"
-         , x = "Woche"
-         , y = "Anzahl [1/(Woche*100.000)]"
+for (i in 1:nrow(AG) ) {
+  
+  Alter <- c(AG[i,])
+
+  WSterbefaelle %>% filter(AlterVon == Alter[1] & AlterBis == Alter[2]) %>% ggplot(
+    aes( x = Kw, y = Mortality, group = Kw )) +
+    geom_boxplot( data = WSterbefaelle %>% filter(AlterVon == Alter[1] & AlterBis == Alter[2] & Jahr < 2020 ) ) +
+    geom_point( data = WSterbefaelle %>% filter(AlterVon == Alter[1] & AlterBis == Alter[2] & Jahr > 2019), aes( x = Kw, y = Mortality, colour = Jahre )) +
+    # expand_limits( y = 0 ) +
+    scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
+    facet_wrap(vars(Geschlechter), ncol = 1) +
+    theme_ipsum() +
+    labs(  title = paste("Sterbefälle pro Woche pro 100.000 in der Altersgruppe", Alter[1], 'bis' , Alter[2],'Jahre')
+         , subtitle= paste('Ab', AbJahr,'; Deutschland')
+         , colour  = 'Geschlecht'
+         , x = 'Woche'
+         , y = 'Anzahl [1 / (Woche * 100.000)]'
          , caption = citation )
 
-ggsave(paste('png/WochenSterblichkeit_A', Alter[1] ,'-A', Alter[2], '.png', sep='')
-       , device = "png"
-       , bg = "white"
-       , width = 3840
-       , height = 2160
-       , units = "px"
-)
+  ggsave(  paste(outdir, AbJahr, '-A', Alter[1] ,'-A', Alter[2], '.png', sep='')
+         , device = "png"
+         , bg = "white"
+         , width = 1920
+         , height = 1080
+         , units = "px"
+         , dpi = 144
+  )
 
+}

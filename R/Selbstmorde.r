@@ -11,7 +11,6 @@
 MyScriptName <- "Selbstmorde"
 
 library(tidyverse)
-# library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -188,7 +187,7 @@ Selbstmorde %>% filter(Altersgruppe == A) %>% ggplot(
   geom_smooth( aes( colour = Geschlecht ), method = 'loess', formula = 'y ~ x' ) +
   expand_limits(y = 0) +
 theme_ta() +
-  labs(  title = paste('Jährliche Sebstmorde, Deutschland', Von, 'bis', Bis)
+  labs(  title = paste('Jährliche Sebstmorde')
          , subtitle= paste( 'Altersgruppe', A  )
          , colour  = "Geschlecht"
          , x = "Jahr"
@@ -212,7 +211,7 @@ Selbstmorde %>% filter(Altersgruppe == A) %>% ggplot(
   geom_smooth( aes( colour = Geschlecht ), method = 'loess', formula = 'y ~ x' ) +
   expand_limits(y = 0) +
   theme_ta() +
-  labs(  title = paste('Sebstmordrate pro 100.000, Deutschland ', Von, 'bis', Bis )
+  labs(  title = paste('Sebstmordrate pro 100.000')
          , subtitle= paste( 'Altersgruppe', A )
          , colour  = "Geschlecht"
          , x = "Jahr"
@@ -234,7 +233,7 @@ Selbstmorde %>% filter(Altersgruppe == A) %>% ggplot( ) +
   geom_line( aes( x = Jahr, y = PersonenZahl, colour = Geschlecht ), size = 2) +
   expand_limits(y = 0) +
   theme_ta() +
-  labs(  title = paste('Bevölkerung, Deutschland', Von, 'bis', Bis )
+  labs(  title = paste('Bevölkerung' )
          , subtitle= paste( 'Altersgruppe', A  )
          , colour  = "Geschlecht"
          , x = "Jahr"
@@ -253,8 +252,8 @@ ggsave(  paste( outdir,'Bev_', A, '.png', sep='' )
        , dpi = 300
 )
 
-p4 <- grid.arrange (p1,p2,p3, nrow = 2)
-
+p4 <- grid.arrange (p1,p2,p3, nrow = 2, top = textGrob(paste('Selbstmorde Deutschland', Von, 'bis', Bis) ,gp=gpar(fontsize=36,font=3)))
+  
 ggsave(  paste( outdir,'3in1_', A, '.png', sep='' )
        , plot = p4
        , device = "png"

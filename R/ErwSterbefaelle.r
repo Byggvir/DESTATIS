@@ -11,7 +11,6 @@
 MyScriptName <- "ErwSterbefaelle"
 
 library(tidyverse)
-library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -21,9 +20,6 @@ library(viridis)
 library(hrbrthemes)
 library(scales)
 library(ragg)
-
-# library(extrafont)
-# extrafont::loadfonts()
 
 # Set Working directory to git root
 
@@ -71,18 +67,19 @@ citation <- paste("© Thomas Arend, 2021\nQuelle: © Statistisches Bundesamt (De
 SQL <- paste( 'select Jahr, Monat, Geschlecht, sum(Gestorbene) as Gestorbene, sum(ErwGestorbene) as ErwGestorbene from SchaetzeSterbefaelle where Jahr > 2020 group by Jahr, Monat, Geschlecht;')
 
 Sterbefaelle <- RunSQL( SQL )
+Sterbefaelle$Geschlechter <- factor ( Sterbefaelle$Geschlecht, levels = c ('F','M'), labels = c('Frauen', 'Männer'))
 
 Sterbefaelle %>% ggplot(
   aes( x = Monat ) ) +
-  geom_line( aes( y = ErwGestorbene, colour = Geschlecht), linetype = 'dashed'  ) +
-  geom_line( aes( y = Gestorbene, colour = Geschlecht)) +
+  geom_line( aes( y = ErwGestorbene, colour = Geschlechter), linetype = 'dashed'  ) +
+  geom_line( aes( y = Gestorbene, colour = Geschlechter)) +
 
 #  expand_limits(y = 0) +
   facet_wrap(vars(Jahr)) +
   theme_ipsum() +
   labs(  title = paste("Sterbefälle und erwartete Sterbefälle")
          , subtitle= paste("Deutschland, Stand:", heute, 'auf Basis der Sterbefälle 2016 - 2019')
-         , colour  = "Geschlecht"
+         , colour  = "Geschlechter"
          , x ="Monat"
          , y = "Anzahl"
          , caption = citation ) +

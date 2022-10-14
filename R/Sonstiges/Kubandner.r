@@ -11,7 +11,6 @@
 MyScriptName <- "Kuhbandner"
 
 library(tidyverse)
-library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -21,9 +20,6 @@ library(viridis)
 library(hrbrthemes)
 library(scales)
 library(ragg)
-
-# library(extrafont)
-# extrafont::loadfonts()
 
 # Set Working directory to git root
 
@@ -50,6 +46,8 @@ source("R/lib/myfunctions.r")
 source("R/lib/mytheme.r")
 source("R/lib/sql.r")
 
+outdir <- 'png/Humbug/' 
+dir.create( outdir , showWarnings = TRUE, recursive = FALSE, mode = "0777")
 
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
@@ -102,7 +100,7 @@ Sterbefaelle %>% ggplot(
           , axis.title.y.right = element_text ( color='red', size = 12 )
   )
 
-ggsave(paste('png/Kuhbandner1.png', sep='')
+ggsave(paste(outdir,'Kuhbandner-001.png', sep='')
        , device = 'png'
        , bg = "white"
        , width = 3840
@@ -149,7 +147,7 @@ SterbefaelleWoche %>% ggplot(
           , axis.title.y.right = element_text ( color='red', size = 12 )
   )
 
-ggsave(paste('png/Kuhbandner3.png', sep='')
+ggsave(paste(outdir,'Kuhbandner-003.png', sep='')
        , device = 'png'
        , bg = "white"
        , width = 3840
@@ -180,7 +178,7 @@ SterbefaelleWoche %>% filter(Kw < 20) %>% ggplot(
           , axis.title.y.right = element_text ( color='red', size = 12 )
   )
 
-ggsave(paste('png/Kuhbandner4.png', sep='')
+ggsave(paste(outdir,'Kuhbandner-004.png', sep='')
        , device = 'png'
        , bg = "white"
        , width = 3840
@@ -209,7 +207,7 @@ SterbefaelleWoche %>% ggplot( ) +
           , axis.title.y.right = element_text ( color='red', size = 12 )
   )
 
-ggsave(paste('png/Kuhbandner5.png', sep='')
+ggsave(paste(outdir,'Kuhbandner-005.png', sep='')
        , device = 'png'
        , bg = "white"
        , width = 3840

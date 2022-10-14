@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 #
 #
-# Script: RKI.r
+# Script: DT232110004.r
 #
 # Stand: 2020-10-21
 # (c) 2020 by Thomas Arend, Rheinbach
@@ -58,13 +58,13 @@ options(
   , max.print = 3000
 )
 
-outdir <- 'png/DT/' 
+outdir <- 'png/DT23211/' 
 dir.create( outdir , showWarnings = TRUE, recursive = FALSE, mode = "0777")
 
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
 
-citation <- paste("© Thomas Arend, 2021-2022\nQuelle: © Statistisches Bundesamt (12411-0006)\nStand:", heute)
+citation <- paste("© Thomas Arend, 2021-2022\nQuelle: © Statistisches Bundesamt (23211-0004)\nStand:", heute)
 
 SQL <- 'select *, concat("A",AlterVon,"-A",AlterBis) as Altersgruppe from DT232110004 order by `Jahr`, `AlterVon`;'
 
@@ -86,7 +86,7 @@ DT232110004 %>% ggplot() +
             , y = "Anzahl"
             , caption = citation )  -> P
 
-    ggsave(   filename = paste(outdir, 'DT232110004.png', sep='')
+    ggsave(   filename = paste(outdir, '0004.png', sep='')
             , plot = P
             , device = "png"
             , bg = "white"

@@ -8,10 +8,9 @@
 # E-Mail: thomas@arend-rhb.de
 #
 
-MyScriptName <- "SterbeRateMonat-ExcessMortatlity"
+MyScriptName <- "SterbeRateMonat"
 
 library(tidyverse)
-library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -46,7 +45,7 @@ WD <- paste(SD[1:(length(SD)-1)],collapse='/')
 setwd(WD)
 
 outdir <- 'png/ExcessMortality/' 
-dir.create( outdir , showWarnings = TRUE, recursive = FALSE, mode = "0777")
+dir.create( outdir , showWarnings = FALSE, recursive = FALSE, mode = "0777")
 
 
 require(data.table)
@@ -174,7 +173,7 @@ EX %>% ggplot(
   expand_limits(y = 0) +
   theme_ipsum() +
   labs(  title = paste('Geschätzte Übersterblichkeit Januar /', BisJahr + 1, 'bis', mMonat,'/', mJahr)
-         , subtitle= paste(  'Geschlechts- und altersstratifizierte Schätzungen anhand monatlicher Sterbefälle\nZeitreihe jeweils von Jahr n bis ', BisJahr
+         , subtitle= paste( 'Geschlechts- und altersstratifizierte Schätzungen anhand monatlicher Sterbefälle\nZeitreihe jeweils von Jahr n bis ', BisJahr
          )
          , x = 'Jahr'
          , y = 'Übersterblichkeit'

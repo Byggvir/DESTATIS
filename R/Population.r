@@ -1,7 +1,6 @@
 #!/usr/bin/env Rscript
 
 library(tidyverse)
-library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -11,9 +10,6 @@ library(viridis)
 library(hrbrthemes)
 library(scales)
 library(ragg)
-
-# library(extrafont)
-# extrafont::loadfonts()
 
 # Set Working directory to git root
 
@@ -39,12 +35,12 @@ source("R/lib/myfunctions.r")
 source("R/lib/mytheme.r")
 source("R/lib/sql.r")
 
-citation <- "© 2022 by Thomas Arend\nQuelle: DESTATIS"
 
 options(scipen=10)
 
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
+citation <- paste("© 2022 by Thomas Arend\nQuelle: DESTATIS Stand:", heute )
 
 SQL <- 'select year(Stichtag) as Jahr, Geschlecht, sum(Einwohner) as Einwohner from DT124110006 where `Alter` >= 80 group by Jahr, Geschlecht;'
 germany <- RunSQL (SQL)

@@ -113,9 +113,9 @@ from SterbefaelleMonat;
 -- zur Anpassung an die Altersstruktur der Sterbefälle
 -- 
 
-drop table if exists DT124110006mod;
+drop table if exists DT124110006M;
 
-create table DT124110006mod
+create table DT124110006M
     ( Jahr INT(11)
     , Geschlecht CHAR(1)
     , AlterVon INT(11)
@@ -201,12 +201,138 @@ where
 ;
 
 --
--- Sterbefälle pro Woche mit Bevölkerung
+--
+-- 
+
+drop table if exists DT124110006W;
+
+create table DT124110006W
+    ( Jahr INT(11)
+    , Geschlecht CHAR(1)
+    , AlterVon INT(11)
+    , AlterBis INT(11)
+    , Einwohner BIGINT(20)
+    , primary key ( Jahr, Geschlecht, AlterVon )
+    , index (AlterVon, AlterBis)
+    )
+
+select 
+    Jahr as Jahr
+    , 'M' as Geschlecht
+    , 0 as AlterVon
+    , 29 as AlterBis
+    , ( select 
+            sum(Einwohner) 
+        from DT124110006 as B
+        where
+            B.`Alter` < 30
+            and year(B.Stichtag) = W.Jahr - 1
+            and Geschlecht = 'M'
+        ) as Einwohner
+from SterbeAGW as W
+where
+    AlterVon < 30
+
+union 
+
+select 
+    Jahr as Jahr
+    , 'F' as Geschlecht
+    , 0 as AlterVon
+    , 29 as AlterBis
+    , ( select 
+            sum(Einwohner) 
+        from DT124110006 as B
+        where
+            B.`Alter` < 30
+            and year(B.Stichtag) = W.Jahr - 1
+            and Geschlecht = 'F'
+        ) as Einwohner
+from SterbeAGW as W
+where
+    AlterVon < 30
+union 
+select 
+    Jahr as Jahr
+    , 'M' as Geschlecht
+    , AlterVon as AlterVon
+    , AlterBis as AlterBis
+    , ( select 
+            sum(Einwohner)
+        from DT124110006 as B 
+        where 
+            B.`Alter` >= W.AlterVon 
+            and B.`Alter` <= W.AlterBis 
+            and year(B.Stichtag) = W.Jahr - 1
+            and Geschlecht = 'M'
+        ) as Einwohner 
+from SterbeAGW as W 
+    where W.AlterVon < 85 and W.AlterVon > 29
+
+union
+
+select 
+    Jahr as Jahr
+    , 'F' as Geschlecht
+    , AlterVon as AlterVon
+    , AlterBis as AlterBis
+    , ( select 
+            sum(Einwohner)
+        from DT124110006 as B 
+        where 
+            B.`Alter` >= W.AlterVon 
+            and B.`Alter` <= W.AlterBis 
+            and year(B.Stichtag) = W.Jahr - 1
+            and Geschlecht = 'F'
+        ) as Einwohner 
+from SterbeAGW as W 
+    where W.AlterVon < 85 and W.AlterVon > 29
+
+union 
+
+select 
+    Jahr as Jahr
+    , 'M' as Geschlecht
+    , 85 as AlterVon
+    , 100 as AlterBis
+    , ( select 
+            sum(Einwohner) 
+        from DT124110006 as B
+        where
+            B.`Alter` >= 85
+            and year(B.Stichtag) = W.Jahr - 1
+            and Geschlecht = 'M'
+        ) as Einwohner
+from SterbeAGW as W
+where
+    AlterVon >= 85
+
+union 
+
+select 
+    Jahr as Jahr
+    , 'F' as Geschlecht
+    , 85 as AlterVon
+    , 100 as AlterBis
+    , ( select 
+            sum(Einwohner) 
+        from DT124110006 as B
+        where
+            B.`Alter` >= 85
+            and year(B.Stichtag) = W.Jahr - 1
+            and Geschlecht = 'F'
+        ) as Einwohner
+from SterbeAGW as W
+where
+    AlterVon >= 85
+;
+
+--
+--
 --
 
-create or replace view SterbefaelleWocheBev as
+create or replace view SterbefaelleWoche15 as
 
-select * from (
 select 
       M.Jahr as Jahr
     , M.Kw as Kw
@@ -214,20 +340,8 @@ select
     , M.AlterVon
     , M.AlterBis
     , M.Gestorbene
-    , D.Einwohner as Einwohner
 from SterbefaelleWoche as M
-join DT124110006mod as D
-on
-    D.Jahr = M.Jahr
-    and
-    D.AlterVon = M.AlterVon
-    and 
-    D.Geschlecht = M.Geschlecht
-where 
-    D.AlterVon < 85
-group by
-   M.Jahr, M.Kw, M.Geschlecht, M.AlterVon
-
+where M.AlterVon < 85
 UNION
 select 
       M.Jahr as Jahr
@@ -236,25 +350,31 @@ select
     , 85 as  AlterVon
     , 100 as AlterBis
     , sum(M.Gestorbene)
-    , sum(D.Einwohner) as Einwohner
 from SterbefaelleWoche as M
-join DT124110006mod as D
-on
-    D.Jahr = M.Jahr
-    and
-    D.AlterVon = 85
-    and 
-    D.Geschlecht = M.Geschlecht
 where 
     M.AlterVon >= 85
 group by
    M.Jahr, M.Kw, M.Geschlecht
-) as B
+;
+
+--
+-- Sterbefälle pro Woche mit Bevölkerung
+--
+
+create or replace view SterbefaelleWocheBev as
+
+select S.*,D.Einwohner
+from SterbefaelleWoche15 as S
+join DT124110006W as D
+on 
+    D.Jahr = S.Jahr
+    and D.Geschlecht = S.Geschlecht
+    and D.AlterVon = S.AlterVon
 order by
-  Jahr
-  , Kw
-  , AlterVon
-  , AlterBis
+  S.Jahr
+  , S.Kw
+  , S.AlterVon
+  , S.AlterBis
 ;
 
 --
@@ -273,7 +393,7 @@ select
     , M.Gestorbene as Gestorbene
     , D.Einwohner as Einwohner
 from SterbefaelleMonat as M
-join DT124110006mod as D
+join DT124110006M as D
 on
     D.Jahr = M.Jahr
     and
@@ -294,9 +414,9 @@ select
     , 85 as AlterVon
     , 100 as AlterBis
     , sum(M.Gestorbene) as Gestorbene
-    , sum(D.Einwohner) as Einwohner
+    , D.Einwohner as Einwohner
 from SterbefaelleMonat as M
-join DT124110006mod as D
+join DT124110006M as D
 on
     D.Jahr = M.Jahr
     and

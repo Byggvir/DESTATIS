@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 #
 #
-# Script: RKI.r
+# Script: Periodensterbetafeln.r
 #
 # Stand: 2020-10-21
 # (c) 2020 by Thomas Arend, Rheinbach

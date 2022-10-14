@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 #
 #
-# Script: RKI.r
+# Script: DT124110006.r
 #
 # Stand: 2020-10-21
 # (c) 2020 by Thomas Arend, Rheinbach
@@ -11,7 +11,6 @@
 MyScriptName <- "DT124110006"
 
 library(tidyverse)
-library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -24,8 +23,6 @@ library(ragg)
 library(ggplottimeseries)
 library(forecast)
 
-# library(extrafont)
-# extrafont::loadfonts()
 
 # Set Working directory to git root
 
@@ -59,7 +56,7 @@ options(
   , max.print = 3000
 )
 
-outdir <- 'png/DT/' 
+outdir <- 'png/DT12411/' 
 dir.create( outdir , showWarnings = TRUE, recursive = FALSE, mode = "0777")
 
 today <- Sys.Date()
@@ -73,7 +70,7 @@ DT124110006 <- RunSQL( SQL )
 
 DT124110006$Geschlecht <- factor(DT124110006$Geschlecht,levels = c( 'F','M'), labels = c('Frauen','Männer'))
 
-for (J in c(1970,1991)) {
+for (J in c(2016)) {
 
   for ( A in unique (DT124110006$Alter)) {
     

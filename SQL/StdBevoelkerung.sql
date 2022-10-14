@@ -113,7 +113,8 @@ create table StdBev6 (
     , Altersgruppe CHAR(8) DEFAULT '' 
     , AltersgruppeL INT DEFAULT 0
     , AltersgruppeU INT DEFAULT 120
-    , Anzahl BIGINT
+    , Anzahl BIGINT DEFAULT 0
+    , Anteil double DEFAULT 0
     , PRIMARY KEY(Stichtag,Geschlecht,Altersgruppe))
 select
       Stichtag as Stichtag
@@ -122,9 +123,14 @@ select
     , AltersgruppeL as AltersgruppeL
     , AltersgruppeU as AltersgruppeU
     , sum(Anzahl) as Anzahl
+    , 0
 from StdBev6BL
 group by 
     Stichtag, Geschlecht, Altersgruppe
+;
+
+update StdBev6 as A
+  set A.Anteil = A.Anzahl / ( select sum(Anzahl) as Anzahl from StdBev6 as B where A.Stichtag = B.Stichtag)
 ;
 
 drop table if exists StdBev10 ;

@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 #
 #
-# Script: SterblichkeitMonat.r
+# Script: SterblichkeitJahr.r
 #
 # Stand: 2021-10-21
 # (c) 2020 by Thomas Arend, Rheinbach
@@ -11,7 +11,6 @@
 MyScriptName <- "SterblichkeitJahr"
 
 library(tidyverse)
-library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -21,9 +20,6 @@ library(viridis)
 library(hrbrthemes)
 library(scales)
 library(ragg)
-
-# library(extrafont)
-# extrafont::loadfonts()
 
 # Set Working directory to git root
 

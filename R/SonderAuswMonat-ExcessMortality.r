@@ -22,9 +22,6 @@ library(scales)
 library(ragg)
 library(forecast)
 
-# library(extrafont)
-# extrafont::loadfonts()
-
 # Set Working directory to git root
 
 if (rstudioapi::isAvailable()){
@@ -67,6 +64,7 @@ heute <- format(today, "%d %b %Y")
 
 AbJahr <- 2013
 SQL <- paste( 'select *, date(concat(Jahr,"-",Monat,"-",1)) as Datum from SterbefaelleMonat where Jahr >= ', AbJahr, ';' )
+citation <- paste( "© Thomas Arend, 2022\nQuelle: © Statistisches Bundesamt (Destatis), 2022\nSQL=", SQL,"\nStand:", heute)
 
 Sterbefaelle <- RunSQL( SQL )
 Sterbefaelle$Geschlecht <- factor(Sterbefaelle$Geschlecht,levels = c( 'F','M'), labels = c('Frauen','Männer'))
@@ -103,7 +101,7 @@ ggsave(paste( outdir, 'SonderAusw.png', sep='')
 )
 
 #
-# Caculate excess mortality with a tiem series
+# Caculate excess mortality with a time series
 #
 
 EX <- list(
@@ -117,9 +115,9 @@ for ( G in c('Frauen', 'Männer') ) {
   
   for ( A in unique(Sterbefaelle$AG) ) {
     
-    rm(fcdata)
-    rm(PS)
-    rm(TS)
+    if ( exists("fcdata" ) ) { rm(fcdata) }
+    if ( exists("PS" ) ){ rm(PS) }
+    if ( exists("TS" ) ) { rm(TS) }
     
     fcdata <- data.table (
       Datum = (Sterbefaelle %>% filter(Geschlecht == G & AG == A & Jahr >= AbJahr ))$Datum
@@ -134,7 +132,7 @@ for ( G in c('Frauen', 'Männer') ) {
     
     # Forecast 
     
-    FC <- forecast(TS, h=31)
+    FC <- forecast(TS, h=32)
     
     # Combine data and forecast
     
@@ -147,7 +145,7 @@ for ( G in c('Frauen', 'Männer') ) {
     EX$lower <- EX$lower + sum(fcdata$Gestorbene[fcdata$Jahr > 2019] - fcdata$upper[fcdata$Jahr > 2019])
     
     fcdata %>% filter( Jahr >= 2016 ) %>% ggplot() +
-      geom_line( aes( x = Datum, y = Gestorbene, colour = 'Gestorbene' ), color = 'black', size = 2 ) +
+      geom_line( aes( x = Datum, y = Gestorbene, colour = 'Gestorbene' ), size = 2 ) +
       geom_line( aes( x = Datum, y = forecast, colour = 'Fitted / Forecast' ) , size = 1.5 ) +
       geom_line( data = fcdata %>% filter ( Jahr > 2019 ),aes( x = Datum, y = upper, colour = 'Upper (80 %)' ) ) +
       geom_line( data = fcdata %>% filter ( Jahr > 2019 ),aes( x = Datum, y = lower, colour = 'Lower (80 %)' ) ) +
@@ -160,10 +158,10 @@ for ( G in c('Frauen', 'Männer') ) {
              , axis.text.x = element_text(angle = -90, hjust = 0)
              , x = "Jahr / Monat"
              , y = "Gestorbene"
-             , colour = ""
+             , colour = "Gestorbene"
              , caption = citation ) -> PS
     
-    ggsave(  paste( outdir, 'EM_', AbJahr,'_',G,"_",A,'.png', sep='')
+    ggsave(  paste( outdir, 'EM_Monat_', AbJahr,'_',G,"_",A,'.png', sep='')
            , plot = PS
            , device = "png"
            , bg = "white"

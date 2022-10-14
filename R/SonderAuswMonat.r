@@ -1,14 +1,14 @@
 #!/usr/bin/env Rscript
 #
 #
-# Script: SterblichkeitMonat.r
+# Script: SonderAuswMonat.r
 #
 # Stand: 2021-10-21
 # (c) 2020 by Thomas Arend, Rheinbach
 # E-Mail: thomas@arend-rhb.de
 #
 
-MyScriptName <- "SterblichkeitMonat"
+MyScriptName <- "SonderAuswMonat"
 
 library(tidyverse)
 library(grid)
@@ -20,9 +20,6 @@ library(viridis)
 library(hrbrthemes)
 library(scales)
 library(ragg)
-
-# library(extrafont)
-# extrafont::loadfonts()
 
 # Set Working directory to git root
 

@@ -11,7 +11,6 @@
 MyScriptName <- "Homburg1"
 
 library(tidyverse)
-library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -49,6 +48,9 @@ require(data.table)
 source("R/lib/myfunctions.r")
 source("R/lib/sql.r")
 
+
+outdir <- 'png/Humbug/' 
+dir.create( outdir , showWarnings = TRUE, recursive = FALSE, mode = "0777")
 
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
@@ -94,7 +96,7 @@ Sterbefaelle %>% ggplot(
           , axis.title.y.right = element_text ( color='red', size = 12 )
   )
 
-ggsave(paste('png/Humbug-001.png', sep='')
+ggsave(paste(outdir,'Homburg-001.png', sep='')
        , device = 'png'
        , bg = "white"
        , width = 29.7
@@ -119,7 +121,7 @@ Sterbefaelle %>% ggplot() +
           , axis.title.y = element_text ( size = 12)
   )
 
-ggsave(paste('png/Humbug-002.png', sep='')
+ggsave(paste(outdir,'Homburg-002.png', sep='')
        , device = 'png'
        , bg = "white"
        , width = 29.7
@@ -158,7 +160,7 @@ SterbefaelleImpfung %>% ggplot() +
           , axis.title.y = element_text ( size = 12)
   )
 
-ggsave(paste('png/Humbug-003.png', sep='')
+ggsave(paste(outdir,'Homburg-003.png', sep='')
        , device = 'png'
        , bg = "white"
        , width = 29.7
@@ -184,7 +186,7 @@ SterbefaelleImpfung %>% ggplot() +
           , axis.title.y = element_text ( size = 12)
   )
 
-ggsave(paste('png/Humbug-004.png', sep='')
+ggsave(paste(outdir,'Homburg-004.png', sep='')
        , device = 'png'
        , bg = "white"
        , width = 29.7

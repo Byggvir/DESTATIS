@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 #
 #
-# Script: RKI.r
+# Script: DT126130006-ExcessMortality.r
 #
 # Stand: 2020-10-21
 # (c) 2020 by Thomas Arend, Rheinbach
@@ -60,7 +60,7 @@ options(
   , max.print = 3000
 )
 
-outdir <- 'png/DT/' 
+outdir <- 'png/DT12613/' 
 dir.create( outdir , showWarnings = TRUE, recursive = FALSE, mode = "0777")
 
 today <- Sys.Date()
@@ -94,10 +94,10 @@ for (AbJahr in EX$Jahr ) {
   i = AbJahr - 2000 + 1
   
   for ( G in c('Frauen', 'Männer') ) {
-  
-    rm(fcdata)
-    rm(PS)
-    rm(TS)
+    
+    if ( exists("fcdata" ) ) { rm(fcdata) }
+    if ( exists("PS" ) ){ rm(PS) }
+    if ( exists("TS" ) ) { rm(TS) }
     
     sJahr <- AbJahr
     sMonat <-1
@@ -168,7 +168,7 @@ EX %>% ggplot(
          , y = 'Übersterblichkeit'
          , caption = citation ) -> POverview
 
-ggsave(paste( outdir, 'EX_Overview_', BisJahr, '_' , mJahr, '.png', sep='')
+ggsave(paste( outdir, 'EM_Overview_', BisJahr, '_' , mJahr, '.png', sep='')
        , plot = POverview
        , device = "png"
        , bg = "white"

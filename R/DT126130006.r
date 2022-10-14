@@ -1,17 +1,16 @@
 #!/usr/bin/env Rscript
 #
 #
-# Script: RKI.r
+# Script: DT126130006.r
 #
 # Stand: 2020-10-21
 # (c) 2020 by Thomas Arend, Rheinbach
 # E-Mail: thomas@arend-rhb.de
 #
 
-MyScriptName <- "MonatsSterblichkeit"
+MyScriptName <- "DT126130006"
 
 library(tidyverse)
-library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -104,4 +103,5 @@ ggsave(  paste(outdir, 'DT126130006_', J, '.png', sep='')
 )
 
 }
+
 

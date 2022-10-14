@@ -11,7 +11,6 @@
 MyScriptName <- "Sterbefaelle pro Woche"
 
 library(tidyverse)
-library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -21,9 +20,6 @@ library(viridis)
 library(hrbrthemes)
 library(scales)
 library(ragg)
-
-# library(extrafont)
-# extrafont::loadfonts()
 
 # Set Working directory to git root
 
@@ -45,16 +41,13 @@ WD <- paste(SD[1:(length(SD)-1)],collapse='/')
 setwd(WD)
 
 outdir <- 'png/Sterblichkeit/' 
-dir.create( outdir , showWarnings = TRUE, recursive = FALSE, mode = "0777")
-
+dir.create( outdir , showWarnings = FALSE, recursive = FALSE, mode = "0777")
 
 require(data.table)
 
 source("R/lib/myfunctions.r")
 source("R/lib/sql.r")
 source("R/lib/color_palettes.r")
-
-citation <- "© Thomas Arend, 2021\nQuelle: © Statistisches Bundesamt (Destatis), 2021\nStand 07.10.2021"
 
 options( 
   digits = 7
@@ -66,20 +59,19 @@ options(
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
 
+citation <- paste('© Thomas Arend,',year(today), '\nQuelle: © Statistisches Bundesamt (Destatis) Stand:', heute)
+
 SQL <- paste( 'select S.Jahr, S.Kw, S.Anzahl, M.Median from SterbefaelleProWoche as S join SterbefaelleWocheMedian as M on S.Kw = M.Kw where S.Jahr > 2019 and S.Kw < 53 order by S.Jahr, S.Kw; ')
 Sterbefaelle <- RunSQL( SQL )
-
-# SQL <- paste( 'select * from SterbefaelleWocheMedian where Kw < 53 order by Kw;')
-# Median <- RunSQL( SQL )
 
 Sterbefaelle$Jahr <- paste('Jahr', Sterbefaelle$Jahr)
 
 Sterbefaelle %>% ggplot(
   aes( x = Kw ) ) +
   geom_line( aes( y = Anzahl, group = Jahr, colour = Jahr)) +
-  geom_line( aes( x = Kw, y = Median, colour = 'Median 2016 - 2019'), linetype = 'dashed', size = 1.5) +
+  geom_line( aes( x = Kw, y = Median, colour = 'Median 2016 - 2019'), linetype = 'dotted', size = 0.5) +
   facet_wrap(vars(Jahr)) +
-#  expand_limits(y = 0) +
+  expand_limits(y = 0) +
   theme_ipsum() +
   labs(  title = paste("Sterbefälle pro Woche")
          , subtitle= paste("Deutschland, Stand:", heute)
@@ -118,7 +110,7 @@ Sterbefaelle %>% ggplot(
   #  scale_x_continuous(breaks=1:12,minor_breaks = seq(1, 12, 1),labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp
 
-ggsave(paste( outdir, 'SterbefaelleProWoche_X', '.png', sep='')
+ggsave(  file = paste( outdir, 'SterbefaelleProWoche_X', '.png', sep='')
        , device = "png"
        , bg = "white"
        , width = 3840

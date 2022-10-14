@@ -11,7 +11,6 @@
 MyScriptName <- "SterbeRateWoche"
 
 library(tidyverse)
-library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -22,9 +21,6 @@ library(hrbrthemes)
 library(scales)
 library(ragg)
 library(forecast)
-
-# library(extrafont)
-# extrafont::loadfonts()
 
 # Set Working directory to git root
 
@@ -46,8 +42,7 @@ WD <- paste(SD[1:(length(SD)-1)],collapse='/')
 setwd(WD)
 
 outdir <- 'png/ExcessMortality/' 
-dir.create( outdir , showWarnings = TRUE, recursive = FALSE, mode = "0777")
-
+dir.create( outdir , showWarnings = FALSE, recursive = TRUE, mode = "0777")
 
 require(data.table)
 
@@ -65,6 +60,8 @@ options(
 
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
+citation <- paste( "© Thomas Arend, 2022\nQuelle: © Statistisches Bundesamt (Destatis), 2022, Sonderauswertung\nOhne 53. Kw, Stand:", heute)
+
 
 for (BisJahr in 2013:2018) {
   
@@ -99,9 +96,9 @@ for ( G in c('Frauen', 'Männer') ) {
   
   for ( A in unique(SterbeRate$AG) ) {
     
-    rm(fcdata)
-    rm(PS)
-    rm(TS)
+    if ( exists("fcdata" ) ) { rm(fcdata) }
+    if ( exists("PS" ) ){ rm(PS) }
+    if ( exists("TS" ) ) { rm(TS) }
     
     sJahr <- AbJahr
     sWoche <-1
@@ -142,7 +139,7 @@ for ( G in c('Frauen', 'Männer') ) {
       scale_x_date( date_labels = "%Y-%b", guide = guide_axis( angle = 90 ) ) +
       scale_y_continuous(labels=function(x) format( x, big.mark = ".", decimal.mark= ',', scientific = FALSE ) ) +
       theme_ipsum() +
-      labs(  title = paste( 'Sterbefälle / geschätzte Sterbefälle', G, '\nAlter ', A, '\nKw 1/', BisJahr + 1, ' bis Kw ', mWoche,'/', mJahr , sep = '')
+      labs(  title = paste( 'Sterbefälle / geschätzte Sterbefälle anhand Wochensterberate', G, '\nAlter ', A, '\nKw 1/', BisJahr + 1, ' bis Kw ', mWoche,'/', mJahr , sep = '')
              , subtitle = paste( 'Zeitreihe von' , AbJahr, 'bis', BisJahr )
              , axis.text.x = element_text( angle = -90, hjust = 0 )
              , x = "Jahr / Kalenderwoche"
@@ -150,13 +147,14 @@ for ( G in c('Frauen', 'Männer') ) {
              , colour = ""
              , caption = citation ) -> PS
     
-    ggsave(  paste( outdir, 'EW_', mJahr, ' ', AbJahr, '_', BisJahr , '_', A,'_', G,'.png', sep='' )
+    ggsave(  paste( outdir, 'EM_Woche_', mJahr, ' ', AbJahr, '_', BisJahr , '_', A,'_', G,'.png', sep='' )
              , plot = PS
              , device = "png"
              , bg = "white"
-             , width = 3840
-             , height = 2160
+             , width = 1920
+             , height = 1080
              , units = "px"
+             , dpi = 144
     )
   }
 } 
@@ -181,13 +179,14 @@ EX %>% ggplot(
          , y = 'Übersterblichkeit'
          , caption = citation ) -> POverview
 
-ggsave(paste( outdir, 'EW_Overview_', BisJahr, '_' , mJahr, '.png', sep='')
+ggsave(paste( outdir, 'EM_Woche_Overview_', BisJahr, '_' , mJahr, '.png', sep='')
        , plot = POverview
        , device = "png"
        , bg = "white"
-       , width = 3840
-       , height = 2160
+       , width = 1920
+       , height = 1080
        , units = "px"
+       , dpi = 144
 )
 
 print(EX)

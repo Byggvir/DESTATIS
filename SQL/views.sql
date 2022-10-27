@@ -14,7 +14,6 @@ group by
     , Altersgruppe;
 
 create or replace view `SterbefaelleJahr` as
-select * from (
 select 
       `M`.`Jahr` AS `Jahr`
     , `M`.`Geschlecht` AS `Geschlecht`
@@ -23,28 +22,10 @@ select
     , sum(`M`.`Gestorbene`) AS `Gestorbene`
 from
     `DESTATIS`.`SterbefaelleMonat` as `M` 
-where 
-    `M`.`AlterBis` < 85
 group by
  `M`.`Jahr`
  , `M`.`Geschlecht`
  , `M`.`AlterVon`
- , `M`.`AlterBis`
-union 
-select 
-      `M`.`Jahr` AS `Jahr`
-    , `M`.`Geschlecht` AS `Geschlecht`
-    , 85 AS `AlterVon`
-    , 100 AS `AlterBis`
-    , sum(`M`.`Gestorbene`) AS `Gestorbene`
-from
-    `DESTATIS`.`SterbefaelleMonat` `M` 
-where 
-    `M`.`AlterVon` >= 85
-group by
- `M`.`Jahr`
- , `M`.`Geschlecht`
-) AS J
 order by
     Jahr
     , Geschlecht
@@ -61,7 +42,7 @@ select
     , `M`.`Gestorbene` AS `Gestorbene`
     , `B`.`Einwohner` AS `Einwohner`
 from `DESTATIS`.`SterbefaelleJahr` `M`
-join `DESTATIS`.`DT124110006mod` AS `B`
+join `DESTATIS`.`DT124110006M` AS `B`
 on
     `B`.`Jahr` = `M`.`Jahr`
     and `B`.`Geschlecht` = `M`.`Geschlecht`

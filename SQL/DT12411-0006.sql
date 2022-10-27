@@ -39,3 +39,35 @@ select
     , `Female` as `Einwohner`
 from DT124110006tmp
 ;
+
+create table DT124110006X ( 
+  Stichtag date
+  , Geschlecht char(1)
+  , `Alter` int(11)
+  , Einwohner bigint(20)
+  , primary key (Stichtag,Geschlecht, `Alter`)) 
+  select 
+    * 
+  from DT124110006 
+  where `Alter` <85
+
+  union 
+
+  select 
+    C.Stichtag
+    , A.Geschlecht
+    , B.`Alter`
+    , round(B.Einwohner/A.Einwohner * C.Einwohner) as Einwohner
+  from WPP85 as A 
+  join WPP as B 
+  on 
+    A.Jahr = year(B.Stichtag)
+    and A.geschlecht = B.Geschlecht
+  join DT124110006 as C
+  on 
+    A.Jahr = year(C.Stichtag)
+    and A.geschlecht = C.Geschlecht
+    and C.`Alter` = 85
+  where 
+    B.`Alter` > 84 
+  ;

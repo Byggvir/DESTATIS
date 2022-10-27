@@ -3,7 +3,7 @@
 #
 # Script: SonderAuswMonat.r
 #
-# Stand: 2020-10-21
+# Stand: 2022-10-18
 # (c) 2020 by Thomas Arend, Rheinbach
 # E-Mail: thomas@arend-rhb.de
 #
@@ -21,6 +21,7 @@ library(hrbrthemes)
 library(scales)
 library(ragg)
 library(ggplottimeseries)
+library(patchwork)
 library(forecast)
 
 # library(extrafont)
@@ -66,8 +67,9 @@ dir.create( outdir , showWarnings = FALSE, recursive = FALSE, mode = "0777")
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
 
-citation <- paste("© Thomas Arend, 2021-2022\nQuelle: © Statistisches Bundesamt (12613-0006)\nStand:", heute)
+citation <- paste("© Thomas Arend, 2022\nQuelle: © Statistisches Bundesamt / WPP\nStand:", heute)
 
+ForYear = 2022
 
 diagramme <- function (data, method = 'DESTATIS', title = 'Rohdaten DESTATIS' ) {
   
@@ -78,26 +80,28 @@ diagramme <- function (data, method = 'DESTATIS', title = 'Rohdaten DESTATIS' ) 
                        , labels = paste('A', unique(data$AlterVon), '-A', unique(data$AlterBis),'') 
                        )
   
-  data%>% filter( Monat > 6 ) %>% ggplot(
-    aes( x = AG, y = AbsExcessMortality, fill = Geschlechter )) +
+  data%>% filter( Monat > 6 & Jahr == ForYear ) %>% ggplot(
+    aes( x = AG, y = RelExcessMortality, fill = Geschlechter )) +
     geom_bar(  stat="identity"
              , color="black"
              , position=position_dodge() 
-             , alpha = 0.5) +
+             , alpha = 0.5 
+             , width = 0.8 ) +
     #geom_label( aes(label = AbsExcessMortality ), size = 1 ) +
     facet_wrap(vars(Monate)) +
-    scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
+    scale_y_continuous( labels = scales::percent ) +
+    # scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
     theme_ipsum() +
     theme(
       axis.text.x = element_text( angle = 90, vjust = 0.5, hjust = 0.5 )
     ) +
-    labs(  title = paste('Geschätzte Über- / Untersterblichkeit 2022 - Monate')
-           , subtitle= paste('Methode', title, 'Median 2018 - 2021' )
+    labs(  title = paste('Geschätzte Über- / Untersterblichkeit', ForYear,'- Monate')
+           , subtitle= paste('Methode', title )
            , x = 'Altersband'
            , y = 'Sterblichkeit Sterbefälle - Median'
            , caption = citation ) -> POverview
   
-  ggsave(paste( outdir, 'SonderAusw_Monat_', method,'.png', sep='')
+  ggsave(paste( outdir, 'SonderAusw_M',ForYear,'_', method,'.png', sep='')
          , plot = POverview
          , device = "png"
          , bg = "white"
@@ -110,12 +114,13 @@ diagramme <- function (data, method = 'DESTATIS', title = 'Rohdaten DESTATIS' ) 
   for (a in 1:length(Altersgruppen) ) {
     
     
-    data %>% filter( AlterVon == Alter[a] ) %>% ggplot(
+    data %>% filter( AlterVon == Alter[a] & Jahr == ForYear ) %>% ggplot(
       aes( x = Monate, y = AbsExcessMortality, fill = Geschlechter )) +
       geom_bar(  stat="identity"
                  , color="black"
                  , position=position_dodge() 
-                 , alpha = 0.5) +
+                 , alpha = 0.5
+                 , width = 0.8 ) +
       #geom_label( aes(label = AbsExcessMortality ), size = 1 ) +
       # facet_wrap(vars(Woche)) +
       scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
@@ -123,14 +128,37 @@ diagramme <- function (data, method = 'DESTATIS', title = 'Rohdaten DESTATIS' ) 
       theme(
         axis.text.x = element_text( angle = 90, vjust = 0.5, hjust = 0.5 )
       ) +
-      labs(  title = paste('Geschätzte Über- / Untersterblichkeit 2022 Altersband', Altersgruppen[a])
-             , subtitle= paste('Methode', title ,'Median 2018 - 2021' )
-             , x = 'Kalenderwoche 2022'
+      labs(  title = paste('Altersband', Altersgruppen[a], '- absolut')
+             , subtitle= paste('Methode', title )
+             , x = 'Kalenderwoche'
              , y = 'Sterblichkeit Sterbefälle - Median'
-             , caption = citation ) -> POverview
+             , caption = citation ) -> POverview1
+    
+    data %>% filter( AlterVon == Alter[a] & Jahr == ForYear ) %>% ggplot(
+      aes( x = Monate, y = RelExcessMortality, fill = Geschlechter )) +
+      geom_bar(  stat="identity"
+                 , color="black"
+                 , position=position_dodge() 
+                 , alpha = 0.5
+                 , width = 0.8 ) +
+      #geom_label( aes(label = RelExcessMortality ), size = 1 ) +
+      # facet_wrap(vars(Woche)) +
+      scale_y_continuous( labels = scales::percent ) +
+      # scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
+      theme_ipsum() +
+      theme(
+        axis.text.x = element_text( angle = 90, vjust = 0.5, hjust = 0.5 )
+      ) +
+      labs(  title = paste('Altersband', Altersgruppen[a], '- relativ')
+             , subtitle= paste('Methode', title )
+             , x = 'Kalenderwoche'
+             , y = 'Sterblichkeit Sterbefälle - Median'
+             , caption = citation ) -> POverview2
+    
+    POverview <- POverview1 + POverview2 + plot_annotation( title = paste("Geschätzte Über- / Untersterblichkeit", ForYear) )
     
     
-    ggsave(paste( outdir, 'SonderAusw_Monat_', method,'_', Altersgruppen[a], '.png', sep='')
+    ggsave(paste( outdir, 'SonderAusw_M',ForYear, '_', method,'_', Altersgruppen[a], '.png', sep='')
            , plot = POverview
            , device = "png"
            , bg = "white"
@@ -141,17 +169,17 @@ diagramme <- function (data, method = 'DESTATIS', title = 'Rohdaten DESTATIS' ) 
   }
 }
 
-SQL <- paste('select * from ExcessMortalityMonthDESTATIS ;')
+SQL <- paste('select * from ExcessMortalityMonthDESTATIS;')
 EM <- RunSQL( SQL )
 
-diagramme(EM, method = 'DESTATIS', title = 'Rohdaten DESTATS')
+diagramme(EM, method = 'DESTATIS', title = 'Median der absoluten Sterbefälle der vier Vorjahre')
 
 SQL <- paste('select * from ExcessMortalityMonthNormalised ;')
 EM <- RunSQL( SQL )
 
-diagramme(EM, method = 'Std', title = 'Sterbefälle 2018 -2021 auf 2022 umgerechnet')
+diagramme(EM, method = 'Std', title = paste('Median der auf',ForYear,'normierten Sterbefällen der vier Vorjahre DESTATIS' ) )
 
 SQL <- paste('select * from ExcessMortalityMonthWPP ;')
 EM <- RunSQL( SQL )
 
-diagramme(EM, method = 'WPP', title ='Sterbefälle 2018 -2021 nach WPP auf 2022 umgerechnet')
+diagramme(EM, method = 'WPP', title = paste('Median der auf',ForYear,'normierten Sterbefällen der vier Vorjahre WPP' ))

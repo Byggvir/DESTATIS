@@ -20,11 +20,7 @@ library(viridis)
 library(hrbrthemes)
 library(scales)
 library(ragg)
-library(ggplottimeseries)
-library(forecast)
-
-# library(extrafont)
-# extrafont::loadfonts()
+library(patchwork)
 
 # Set Working directory to git root
 
@@ -66,37 +62,62 @@ dir.create( outdir , showWarnings = FALSE, recursive = FALSE, mode = "0777")
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
 
-citation <- paste("© Thomas Arend, 2021-2022\nQuelle: © Statistisches Bundesamt (12613-0006)\nStand:", heute)
+citation <- paste("© Thomas Arend, 2022\nQuelle: © Statistisches Bundesamt /WPP\nStand:", heute)
+
+ForYear = 2022
 
 diagramme <- function (data, method = 'DESTATIS', title = 'Rohdaten DESTATIS' ) {
   
   data$Geschlechter <- factor(data$Geschlecht,levels = c( 'F','M'), labels = c('Frauen','Männer'))
-  data$Woche <- factor(data$Kw, levels = 1:53, labels = paste( 'Kalenderwoche', 1:53 ) )
+  data$Woche <- factor(data$Kw, levels = 1:53, labels = 1:53 )
   data$AG <- factor( data$AlterVon
                        , levels = unique(data$AlterVon)
-                       , labels = paste('A', unique(data$AlterVon), '-A', unique(data$AlterBis),'') 
+                       , labels = paste('A', unique(data$AlterVon), '-A', unique(data$AlterBis),sep ='') 
                        )
+  mKw <- max((data %>% filter (Jahr == ForYear))$Kw)
   
-  data %>% filter( Kw > 36 ) %>% ggplot(
+  data %>% filter( Kw == mKw & Jahr == ForYear ) %>% ggplot(
     aes( x = AG, y = AbsExcessMortality, fill = Geschlechter )) +
     geom_bar(  stat="identity"
              , color="black"
              , position=position_dodge() 
-             , alpha = 0.5) +
-    #geom_label( aes(label = AbsExcessMortality ), size = 1 ) +
-    facet_wrap(vars(Woche)) +
+             , alpha = 0.5
+             , width = 0.8 ) +
+#    facet_wrap(vars(Woche)) +
     scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
     theme_ipsum() +
     theme(
-      axis.text.x = element_text( angle = 90 )
+      axis.text.x = element_text( angle = 90, size = 6, hjust = 0.5, vjust = 0.5 )
     ) +
-    labs(  title = paste('Geschätzte Über- / Untersterblichkeit 2022 - Kalenderwochen')
-           , subtitle= paste('Methode', title, 'Median 2018 - 2021' )
+    labs(  title = paste('Absolut')
+           , subtitle= paste('Methode', title )
            , x = 'Altersband'
            , y = 'Sterblichkeit Sterbefälle - Median'
-           , caption = citation ) -> POverview
+           , caption = citation ) -> POverview1
   
-  ggsave(paste( outdir, 'SonderAusw_Woche_', method,'.png', sep='')
+  data %>% filter( Kw == mKw & Jahr == ForYear ) %>% ggplot(
+    aes( x = AG, y = RelExcessMortality, fill = Geschlechter )) +
+    geom_bar(  stat="identity"
+               , color="black"
+               , position=position_dodge() 
+               , alpha = 0.5
+               , width = 0.8 ) +
+ #   facet_wrap(vars(Woche)) +
+    scale_y_continuous( labels = scales::percent ) +
+    theme_ipsum() +
+    theme(
+      axis.text.x = element_text( angle = 90, size = 6, hjust = 0.5, vjust = 0.5 )
+    ) +
+    labs(  title = paste('Relativ')
+           , subtitle= paste('Methode', title )
+           , x = 'Altersband'
+           , y = 'Sterblichkeit Sterbefälle - Median'
+           , caption = citation ) -> POverview2
+  
+  
+  POverview <- POverview1 + POverview2 + plot_annotation( title = paste("Geschätzte Über- / Untersterblichkeit", ForYear, "- Kalenderwoche", mKw )) 
+  
+  ggsave(  filename = paste( outdir, 'SonderAusw_W', ForYear, '_', method,'.png', sep='')
          , plot = POverview
          , device = "png"
          , bg = "white"
@@ -109,26 +130,45 @@ diagramme <- function (data, method = 'DESTATIS', title = 'Rohdaten DESTATIS' ) 
   
   for (a in 1:length(Altersgruppen) ) {
     
-    data %>% filter( AlterVon == Alter[a] ) %>% ggplot(
+    data %>% filter( AlterVon == Alter[a] & Jahr == ForYear) %>% ggplot(
       aes( x = Woche, y = AbsExcessMortality, fill = Geschlechter )) +
       geom_bar(  stat="identity"
                  , color="black"
                  , position=position_dodge() 
-                 , alpha = 0.5) +
-      #geom_label( aes(label = AbsExcessMortality ), size = 1 ) +
-      # facet_wrap(vars(Woche)) +
+                 , alpha = 0.5
+                 , width = 0.8 ) +
       scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
       theme_ipsum() +
       theme(
-        axis.text.x = element_text( angle = 90 )
+        axis.text.x = element_text( angle = 90, size = 6, hjust = 0.5, vjust = 0.5 )
       ) +
-      labs(  title = paste('Geschätzte Über- / Untersterblichkeit 2022 Altersband', Altersgruppen[a] )
-             , subtitle= paste('Methode', title ,'Median 2018 - 2021' )
-             , x = 'Kalenderwoche 2022'
+      labs(  title = paste('Altersband', Altersgruppen[a], '- absolut' )
+             , subtitle= paste( 'Methode', title )
+             , x = 'Kalenderwoche'
              , y = 'Sterblichkeit Sterbefälle - Median'
-             , caption = citation ) -> POverview
+             , caption = citation ) -> POverview1
+
     
-    ggsave(paste( outdir, 'SonderAusw_Woche_', method, Altersgruppen[a], '.png', sep='')
+    data %>% filter( AlterVon == Alter[a] & Jahr == ForYear) %>% ggplot(
+      aes( x = Woche, y = RelExcessMortality, fill = Geschlechter )) +
+      geom_bar(  stat="identity"
+                 , color="black"
+                 , position=position_dodge() 
+                 , alpha = 0.5
+                 , width = 0.8 ) +
+      scale_y_continuous( labels = scales::percent ) +
+      theme_ipsum() +
+      theme(
+        axis.text.x = element_text( angle = 90, size = 6 , hjust = 0.5, vjust = 0.5 )
+      ) +
+      labs(  title = paste('Altersband', Altersgruppen[a], '- relativ' )
+             , subtitle= paste('Methode', title )
+             , x = 'Kalenderwoche'
+             , y = 'Sterblichkeit Sterbefälle - Median'
+             , caption = citation ) -> POverview2
+    
+    POverview <- POverview1 + POverview2 + plot_annotation( title = paste("Geschätzte Über- / Untersterblichkeit", ForYear)) 
+    ggsave(paste( outdir, 'SonderAusw_W', ForYear, '_', method, '_', Altersgruppen[a], '.png', sep='')
            , plot = POverview
            , device = "png"
            , bg = "white"
@@ -139,16 +179,16 @@ diagramme <- function (data, method = 'DESTATIS', title = 'Rohdaten DESTATIS' ) 
 }
 
 SQL <- paste('select * from ExcessMortalityWeekDESTATIS ;')
-EMweek <- RunSQL( SQL )
+data <- RunSQL( SQL )
 
-diagramme(EMweek, method = 'DESTATIS', title = 'Rohdaten DESTATS')
+diagramme(data, method = 'DESTATIS', title = 'Rohdaten DESTATS')
 
 SQL <- paste('select * from ExcessMortalityWeekNormalised ;')
-EMweek <- RunSQL( SQL )
+data <- RunSQL( SQL )
 
-diagramme(EMweek, method = 'Std', title = 'Sterbefälle 2018 -2021 auf 2022 umgerechnet')
+diagramme(data, method = 'Std', title = paste('Sterbefälle der vier Vorjahre nach DESTATIS auf',ForYear,'umgerechnet'))
 
 SQL <- paste('select * from ExcessMortalityWeekWPP ;')
-EMweek <- RunSQL( SQL )
+data <- RunSQL( SQL )
 
-diagramme(EMweek, method = 'WPP', title ='Sterbefälle 2018 -2021 nach WPP auf 2022 umgerechnet')
+diagramme(data, method = 'WPP', title = paste('Sterbefälle der vier Vorjahre nach WPP auf',ForYear,'umgerechnet'))

@@ -74,12 +74,12 @@ Sterbefaelle$Alter <- factor(Sterbefaelle$AlterVon)
 
 
 
-Sterbefaelle %>% filter( Monat == 7 & AlterVon < 60 ) %>% ggplot(
+Sterbefaelle %>% filter( Monat == 9 ) %>% ggplot(
   aes( x = Alter, y = Sterberate)) +
   geom_boxplot(aes(fill = Geschlecht ), alpha = 0.5) +
-  geom_point(data = Sterbefaelle %>% filter(Jahr ==2022 & Monat == 7 & AlterVon < 60 )
-             , aes( x = Alter, y = Sterberate, colour = Geschlecht )
-             , size = 2) +
+  # geom_point(data = Sterbefaelle %>% filter(Jahr ==2022 & Monat == 9 )
+  #            , aes( x = Alter, y = Sterberate, colour = Geschlecht )
+  #            , size = 2) +
 #  expand_limits( y = 0 ) +
   facet_wrap(vars(Geschlecht,Monate), ncol = 4) +
   theme_ipsum() +

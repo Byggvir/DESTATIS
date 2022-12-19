@@ -95,7 +95,7 @@ Sterbefaelle %>% ggplot(
   geom_point(data = Sterbefaelle %>% filter ( Jahr > 2019 ), aes(colour = Jahre), alpha = 0.5) +
   # expand_limits(y = 0) +
   theme_ipsum() +
-  labs(  title = paste("Sterberate pro Woche pro 1 Mio Einwohner 2000 - 2019 (Bosplots) und 2020 - 2022 (Punkte) ")
+  labs(  title = paste("Sterberate pro Woche pro 1 Mio Einwohner 2000 - 2019 (Boxplots) und 2020 - 2022 (Punkte) ")
          , subtitle= paste("Deutschland, Stand:", heute)
          , colour  = "Jahr"
          , x = "Kw"

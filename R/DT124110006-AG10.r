@@ -23,9 +23,6 @@ library(ragg)
 library(ggplottimeseries)
 library(forecast)
 
-# library(extrafont)
-# extrafont::loadfonts()
-
 # Set Working directory to git root
 
 if (rstudioapi::isAvailable()){
@@ -66,12 +63,18 @@ heute <- format(today, "%d %b %Y")
 
 citation <- paste("© Thomas Arend, 2021-2022\nQuelle: © Statistisches Bundesamt (12411-0006)\nStand:", heute)
 
-SQL <- 'select year(Stichtag) + 1 as Jahr, Geschlecht, (`Alter` div 5) * 5 as AG, sum(Einwohner) as Einwohner from DT124110006 group by `Jahr`, `Geschlecht`, `AG`;'
+SQL <- 'select year(Stichtag) + 1 as Jahr, Geschlecht, (`Alter` div 5) * 5 as AG, sum(Einwohner) as Einwohner from DT124110006X group by `Jahr`, `Geschlecht`, `AG`;'
 
 DT124110006 <- RunSQL( SQL )
 
 DT124110006$Geschlecht <- factor(DT124110006$Geschlecht,levels = c( 'F','M'), labels = c('Frauen','Männer'))
 DT124110006$Jahre <- factor( DT124110006$Jahr, levels = unique(DT124110006$Jahr), labels = unique(DT124110006$Jahr) )
+
+AlterVon <- unique (DT124110006$AG)
+AlterBis <- AlterVon + 4
+AlterBis[AlterVon == 100 ] <- 100
+
+DT124110006$AB <- factor( DT124110006$AG, levels = AlterVon, labels = paste(AlterVon,'-',AlterBis ) )
 
 for (J in c(2016)) {
 
@@ -103,6 +106,33 @@ for (J in c(2016)) {
             , width = 3840, height = 2160
             , units = "px"
     )
+
   }
 
 }
+
+DT124110006 %>% filter( Jahr >= J & AG >14 & AG < 45) %>% ggplot(
+  aes( x = Jahre, y = Einwohner, group = AB, fill = AB)) +
+  # geom_line() +
+  geom_bar( alpha = 0.7, stat = 'identity', position = position_dodge2() ) +
+  scale_y_continuous( labels = function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE ) ) +
+  facet_wrap (vars( Geschlecht ), nrow = 2) +
+  theme_ipsum() +
+  theme (
+    axis.text.x = element_text( angle = 90, hjust = 0.5, vjust = 0.5 ) 
+  ) +
+  labs(  title = paste("Einwohner Bundesrepublik Deutschland")
+         , subtitle = paste ('5-Jahre Altersbänder')
+         , colour  = "Geschlecht"
+         , x = "Stichtag: Jahresende"
+         , y = "Einwohner"
+         , caption = citation )  -> P
+
+ggsave(   filename = paste(outdir, 'AG-', J, '.png', sep='')
+          , plot = P
+          , device = "png"
+          , bg = "white"
+          , width = 3840
+          , height = 2160
+          , units = "px"
+)

@@ -65,7 +65,7 @@ options(
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
 
-for (BisJahr in 2019:2019) {
+for (BisJahr in 2014:2021) {
   
 # SQL <- paste( 'select *, concat("A",AlterVon,"-",AlterBis) as AG from SterbefaelleMonatBev where Jahr <= ', BisJahr + 1, ' ;')
 SQL <- paste( 'select *, concat("A",AlterVon,"-",AlterBis) as AG from SterbefaelleMonatBev ;')
@@ -133,8 +133,8 @@ for ( G in c('Frauen', 'Männer') ) {
     EX$SD[i] <- sqrt(EX$SD[i]^2 + sum( ( (FC$upper[,2]-FC$mean) / 2 * fcdata$Einwohner[fcdata$Jahr > BisJahr] )^2 ) )
     
     fcdata %>% filter( Jahr >= BisJahr - 4 ) %>% ggplot() +
-      geom_line( aes( x = Datum, y = Gestorbene, colour = 'Gestorbene'), size = 2 ) +
-      geom_line( aes( x = Datum, y = forecast * Einwohner, colour = 'Forecast fitted' ) , size = 1 ) +
+      geom_line( aes( x = Datum, y = Gestorbene, colour = 'Gestorbene'), linewidth = 2 ) +
+      geom_line( aes( x = Datum, y = forecast * Einwohner, colour = 'Forecast fitted' ) , linewidth = 1 ) +
       geom_line( data = fcdata %>% filter ( Jahr > BisJahr ),aes( x = Datum, y = upper * Einwohner, colour = 'Forecast Upper (80 %)' ), linetype = 'dotted' ) +
       geom_line( data = fcdata %>% filter ( Jahr > BisJahr ),aes( x = Datum, y = lower * Einwohner, colour = 'Forecast Lower (80 %)' ), linetype = 'dotted' ) +
       geom_ribbon( data = fcdata %>% filter ( Jahr > BisJahr ),aes( x = Datum, ymin=lower * Einwohner, ymax = upper * Einwohner), alpha = 0.2)  +
@@ -164,7 +164,7 @@ for ( G in c('Frauen', 'Männer') ) {
 EX %>% ggplot(
   aes( x = Jahr, y = mean )) +
   geom_bar(  stat="identity"
-             , color="black"
+             , color= 'black'
              , position=position_dodge() ) +
   geom_hline(aes(yintercept = median(mean)), color = 'red') +
   geom_label( aes(label = round(mean)), size = 2 ) +
@@ -187,6 +187,6 @@ ggsave(paste( outdir, 'EX_Overview_', BisJahr, '_' , mJahr, '.png', sep='')
        , units = "px"
 )
 
-print(EX)
+write.csv( EX, file = paste( outdir, 'EX_Overview_', BisJahr, '_' , mJahr, '.csv', sep='' ) )
 
 }

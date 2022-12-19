@@ -58,8 +58,8 @@ options(
   , max.print = 3000
 )
 
-outdir <- 'png/DT/' 
-dir.create( outdir , showWarnings = TRUE, recursive = FALSE, mode = "0777")
+outdir <- 'png/DT12411/0006/'
+dir.create( outdir , showWarnings = FALSE, recursive = TRUE, mode = "0777")
 
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
@@ -70,35 +70,44 @@ SQL <- 'select * from DT124110006 order by `Stichtag`, `Geschlecht`, `Alter`;'
 
 DT124110006 <- RunSQL( SQL )
 
+
+
 DT124110006$Geschlecht <- factor(DT124110006$Geschlecht,levels = c( 'F','M'), labels = c('Frauen','Männer'))
 
 
-SQL <- 'select Stichtag,Geschlecht,sum(Einwohner) as Einwohner from DT124110006 where `Alter` >= 80 group by `Stichtag`, `Geschlecht`;'
+##
+#
+# Alter über n Jahre
+#
+##
 
-DT124110006 <- RunSQL( SQL )
-
-DT124110006$Geschlecht <- factor(DT124110006$Geschlecht,levels = c( 'F','M'), labels = c('Frauen','Männer'))
-
-DT124110006 %>% filter( year(Stichtag) > 2014) %>% ggplot(
-  aes( x = Stichtag, y = Einwohner, group = Geschlecht, colour = Geschlecht)) +
-  geom_line( alpha = 0.7 ) +
-  geom_smooth() + 
-  expand_limits( y = 0 ) +
-  scale_x_date( date_labels = "%Y" ) +
-  scale_y_continuous( labels = function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE ) ) +
-  theme_ipsum() +
-  labs(  title = paste("Einwohner Bundesrepublik Deutschland")
-         , subtitle = paste( 'Alter 80+ Jahr' )
-         , colour  = "Geschlecht"
-         , x = "Stichtag 31.12."
-         , y = "Einwohner"
-         , caption = citation )  -> P
-
-ggsave(   filename = paste(outdir, 'DT124110006_80plus.png', sep='')
-          , plot = P
-          , device = "png"
-          , bg = "white"
-          , width = 3840, height = 2160
-          , units = "px"
-)
-
+for ( A in (c(60,70,80))) {
+  
+  SQL <- paste('select Stichtag,Geschlecht,sum(Einwohner) as Einwohner from DT124110006 where `Alter` >=', A, 'group by `Stichtag`, `Geschlecht`;')
+  DT124110006 <- RunSQL( SQL )
+  DT124110006$Geschlecht <- factor(DT124110006$Geschlecht,levels = c( 'F','M'), labels = c('Frauen','Männer'))
+  
+  DT124110006 %>% filter( year(Stichtag) > 2014) %>% ggplot(
+    aes( x = Stichtag, y = Einwohner, group = Geschlecht, colour = Geschlecht)) +
+    geom_line( alpha = 0.7 ) +
+    geom_smooth() + 
+    expand_limits( y = 0 ) +
+    scale_x_date( date_labels = "%Y" ) +
+    scale_y_continuous( labels = function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE ) ) +
+    theme_ipsum() +
+    labs(  title = paste("Einwohner Bundesrepublik Deutschland")
+           , subtitle = paste0( 'Alter ', A, '+ Jahre' )
+           , colour  = "Geschlecht"
+           , x = "Stichtag 31.12."
+           , y = "Einwohner"
+           , caption = citation )  -> P
+  
+  ggsave(   filename = paste(outdir, 'DT124110006_', A, 'plus.png', sep='')
+            , plot = P
+            , device = "png"
+            , bg = "white"
+            , width = 3840, height = 2160
+            , units = "px"
+  )
+  
+}

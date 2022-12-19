@@ -31,4 +31,19 @@ KwToDate <- function ( Jahr , Kw ) {
   R[ w <= 4 ] <- R[ w <= 4 ] + ( Kw[ w <= 4 ] - 1 ) * 7 + (4 - w [ w <= 4 ]) 
   return (R)
     
+
+}
+
+MonatToDate <- function ( Jahr , Monat ) {
+  
+  R <- as.Date (paste(Jahr,'-',Monat,'-01',sep = ''))
+  
+  return (R)
+  
+}
+
+factorGeschlecht <- function (data) {
+  
+  return( factor( data, levels = c('F','M'), labels = c('Frauen','Männer' ) ) )
+
 }

@@ -1,9 +1,9 @@
 #!/usr/bin/env Rscript
 #
 #
-# Script: SterblichkeitMonat.r
+# Script: SonderAuswMonat-ExcessMortality
 #
-# Stand: 2021-10-21
+# Stand: 2022-12-18
 # (c) 2020 by Thomas Arend, Rheinbach
 # E-Mail: thomas@arend-rhb.de
 #
@@ -41,8 +41,8 @@ WD <- paste(SD[1:(length(SD)-1)],collapse='/')
 
 setwd(WD)
 
-outdir <- 'png/SonderAusw/' 
-dir.create( outdir , showWarnings = TRUE, recursive = FALSE, mode = "0777")
+outdir <- 'png/ExcessMortality/Month/' 
+dir.create( outdir , showWarnings = FALSE, recursive = TRUE, mode = "0777")
 
 
 require(data.table)
@@ -92,7 +92,7 @@ Sterbefaelle %>% filter( Jahr >= AbJahr ) %>% ggplot(
          , y = "Gestorbene"
          , caption = citation ) -> P1
 
-ggsave(paste( outdir, 'SonderAusw.png', sep='')
+ggsave(paste( outdir, 'SonderAuswM.png', sep='')
        , plot = P1
        , device = "png"
        , bg = "white"
@@ -132,7 +132,7 @@ for ( G in c('Frauen', 'Männer') ) {
     
     # Forecast 
     
-    FC <- forecast(TS, h=32)
+    FC <- forecast(TS, h=34)
     
     # Combine data and forecast
     
@@ -145,8 +145,8 @@ for ( G in c('Frauen', 'Männer') ) {
     EX$lower <- EX$lower + sum(fcdata$Gestorbene[fcdata$Jahr > 2019] - fcdata$upper[fcdata$Jahr > 2019])
     
     fcdata %>% filter( Jahr >= 2016 ) %>% ggplot() +
-      geom_line( aes( x = Datum, y = Gestorbene, colour = 'Gestorbene' ), size = 2 ) +
-      geom_line( aes( x = Datum, y = forecast, colour = 'Fitted / Forecast' ) , size = 1.5 ) +
+      geom_line( aes( x = Datum, y = Gestorbene, colour = 'Gestorbene' ), linewidth = 2 ) +
+      geom_line( aes( x = Datum, y = forecast, colour = 'Fitted / Forecast' ) , linewidth = 1.5 ) +
       geom_line( data = fcdata %>% filter ( Jahr > 2019 ),aes( x = Datum, y = upper, colour = 'Upper (80 %)' ) ) +
       geom_line( data = fcdata %>% filter ( Jahr > 2019 ),aes( x = Datum, y = lower, colour = 'Lower (80 %)' ) ) +
       geom_ribbon( data = fcdata %>% filter ( Jahr > 2019 ),aes( x = Datum, ymin=lower, ymax = upper), alpha = 0.2)  +

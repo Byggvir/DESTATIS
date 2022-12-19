@@ -46,7 +46,6 @@ setwd(WD)
 require(data.table)
 
 source("R/lib/myfunctions.r")
-source("R/lib/mytheme.r")
 source("R/lib/sql.r")
 
 options( 
@@ -64,7 +63,7 @@ heute <- format(today, "%d %b %Y")
 
 citation <- paste("© Thomas Arend, 2021-2022\nQuelle: © Statistisches Bundesamt (12411-0006)\nStand:", heute)
 
-SQL <- 'select year(Stichtag) +1 as Jahr, Geschlecht, sum( `Alter` * Einwohner ) / sum(Einwohner) - `Alter` div 5 * 5 as MittleresAlter, `Alter` div 5 * 5 as AG from DT124110006 group by Stichtag, Geschlecht, AG;'
+SQL <- 'select year(Stichtag) +1 as Jahr, Geschlecht, sum( `Alter` * Einwohner ) / sum(Einwohner) - `Alter` div 5 * 5 as MittleresAlter, `Alter` div 5 * 5 as AG from DT124110006X where `Alter` < 95 group by Stichtag, Geschlecht, AG;'
 
 DT124110006 <- RunSQL( SQL )
 
@@ -74,7 +73,7 @@ DT124110006$Altersgruppe <-
           , levels = unique(DT124110006$AG)
           , labels = paste( 'A',unique(DT124110006$AG),'-A',unique(DT124110006$AG)+4, sep = ''))
 
-  DT124110006 %>% filter ( Jahr > 2017 & AG > 50 & AG < 85 ) %>% ggplot(
+  DT124110006 %>% filter ( Jahr > 2017 & AG > 50 ) %>% ggplot(
       aes( x = Jahr, y = MittleresAlter, group = Geschlecht, colour = Geschlecht)) +
       geom_line( alpha = 0.7 ) +
       facet_wrap(vars(Altersgruppe)) +

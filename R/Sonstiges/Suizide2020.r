@@ -5,7 +5,6 @@ MyScriptName <- 'RKI-Omikron.r'
 require( data.table  )
 
 library( tidyverse  )
-library( REST )
 library( gtable )
 library( lubridate )
 library( ggplot2 )
@@ -44,7 +43,6 @@ WD <- paste( SD[1:( length( SD ) - 2 )],collapse='/' )
 setwd( WD )
 
 source( "R/lib/myfunctions.r" )
-source( "R/lib/mytheme.r" )
 source( "R/lib/sql.r" )
 
 
@@ -98,28 +96,29 @@ bFun <- function(node) {
   gsub('\\+', '', x)
 }
 
+Jahr <- 2021
 url <- "https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Gesundheit/Todesursachen/Tabellen/sterbefaelle-suizid-erwachsene-kinder.html"
-Suizide2020 = as.data.table( htmltab( url, which = 1, bodyFun = bFun, colNames = c( "Altergruppe","Gesamt","Male","Female" ) ) )
+SuizidTab = as.data.table( htmltab( url, which = 1, bodyFun = bFun, colNames = c( "Altergruppe","Gesamt","Male","Female" ) ) )
 
-Suizide2020$Jahr <- 2020
+SuizidTab$Jahr <- Jahr
 
-  Suizide2020[1, 2:4] <- '0'
-  Suizide2020$Gesamt <- as.integer(Suizide2020$Gesamt)
-  Suizide2020$Male <- as.integer(Suizide2020$Male)
-  Suizide2020$Female <- as.integer(Suizide2020$Female)
+  SuizidTab[1, 2:4] <- '0'
+  SuizidTab$Gesamt <- as.integer(SuizidTab$Gesamt)
+  SuizidTab$Male <- as.integer(SuizidTab$Male)
+  SuizidTab$Female <- as.integer(SuizidTab$Female)
 
-Suizide2020$AlterVon <- c(0,as.integer(gsub(' bis.*','', Suizide2020$Altergruppe[2:(nrow(Suizide2020)-1)])),90)
-Suizide2020$AlterBis <- c(0,as.integer(gsub('.*bis ','', Suizide2020$Altergruppe[2:(nrow(Suizide2020)-1)])) - 1,100)
+SuizidTab$AlterVon <- c(0,as.integer(gsub(' bis.*','', SuizidTab$Altergruppe[2:(nrow(SuizidTab)-1)])),90)
+SuizidTab$AlterBis <- c(0,as.integer(gsub('.*bis ','', SuizidTab$Altergruppe[2:(nrow(SuizidTab)-1)])),100)
 
-Suizide2020$AlterBis[nrow(Suizide2020)-1] <- 100
-Suizide2020$AlterBis[1] <- 0
-Suizide2020$AlterVon[2] <- 1
+SuizidTab$AlterBis[nrow(SuizidTab)-1] <- 100
+SuizidTab$AlterBis[1] <- 0
+SuizidTab$AlterVon[1] <- 14
 
-Suizide2020$Male[nrow(Suizide2020)-1] <- Suizide2020$Male[nrow(Suizide2020)-1] + Suizide2020$Male[nrow(Suizide2020)]
-Suizide2020$Female[nrow(Suizide2020)-1] <- Suizide2020$Female[nrow(Suizide2020)-1] + Suizide2020$Female[nrow(Suizide2020)]
+SuizidTab$Male[nrow(SuizidTab)-1] <- SuizidTab$Male[nrow(SuizidTab)-1] + SuizidTab$Male[nrow(SuizidTab)]
+SuizidTab$Female[nrow(SuizidTab)-1] <- SuizidTab$Female[nrow(SuizidTab)-1] + SuizidTab$Female[nrow(SuizidTab)]
 
 
-write.csv(   x = Suizide2020[1:(nrow(Suizide2020)-1),c(5,6,7,3,4)]
-            ,file = paste( 'data/23211-0004-2020', '.csv', sep='')
+write.csv(   x = SuizidTab[1:(nrow(SuizidTab)-1),c(5,6,7,3,4)]
+            ,file = paste( 'data/23211-0004-',Jahr, '.csv', sep='')
             , row.names = FALSE
 )

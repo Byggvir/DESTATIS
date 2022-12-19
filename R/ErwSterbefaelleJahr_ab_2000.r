@@ -11,7 +11,6 @@
 MyScriptName <- "ErwSterbefaelle_ab_2000"
 
 library(tidyverse)
-library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)

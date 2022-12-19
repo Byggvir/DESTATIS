@@ -11,7 +11,6 @@
 MyScriptName <- "Periodensterbetafeln"
 
 library(tidyverse)
-library(REST)
 library(grid)
 library(gridExtra)
 library(gtable)
@@ -22,10 +21,6 @@ library(hrbrthemes)
 library(scales)
 library(stringr)
 library(ragg)
-
-# library(extrafont)
-# extrafont::loadfonts()
-
 # Set Working directory to git root
 
 if (rstudioapi::isAvailable()){
@@ -48,7 +43,6 @@ setwd(WD)
 require(data.table)
 
 source("R/lib/myfunctions.r")
-source("R/lib/mytheme.r")
 source("R/lib/sql.r")
 
 
@@ -87,7 +81,7 @@ Periodentafeln %>% filter( Alter == A ) %>% ggplot(
   #  scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE))
   scale_y_continuous(labels = scales::percent ) +
 #  facet_wrap(vars(Geschlecht)) +
-  theme_ta() +
+  theme_ipsum() +
   labs(  title = paste("Sterbewahrscheinlichkeit im Alter", A , "Jahre")
          , subtitle= paste("Deutschland, Stand:", heute)
          , colour  = "Geschlecht"

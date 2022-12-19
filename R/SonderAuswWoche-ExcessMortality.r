@@ -1,14 +1,20 @@
 #!/usr/bin/env Rscript
 #
+# Script: SonderAuswWoche-ExcessMortality.r
 #
-# Script: SterblichkeitMonat.r
+# Berechnung der Sterblichkeit anhand wöchentlich Sterberaten mittels DEU Zeitreihen  
 #
-# Stand: 2021-10-21
+# Quellen:
+#   Sonderauswertung DESTATIS zu Sterbefällen
+#   DT12411-0006
+#
+# Stand: 2022-12-18
+#
 # (c) 2020 by Thomas Arend, Rheinbach
 # E-Mail: thomas@arend-rhb.de
 #
 
-MyScriptName <- "SterbeRateWoche"
+MyScriptName <- "SonderAuswWoche-ExcessMortality.r"
 
 library(tidyverse)
 library(grid)
@@ -41,7 +47,7 @@ WD <- paste(SD[1:(length(SD)-1)],collapse='/')
 
 setwd(WD)
 
-outdir <- 'png/ExcessMortality/' 
+outdir <- 'png/ExcessMortality/Week/' 
 dir.create( outdir , showWarnings = FALSE, recursive = TRUE, mode = "0777")
 
 require(data.table)
@@ -63,7 +69,7 @@ heute <- format(today, "%d %b %Y")
 citation <- paste( "© Thomas Arend, 2022\nQuelle: © Statistisches Bundesamt (Destatis), 2022, Sonderauswertung\nOhne 53. Kw, Stand:", heute)
 
 
-for (BisJahr in 2013:2018) {
+for ( BisJahr in 2016:2016 ) {
   
 SQL <- paste( 'select *, concat("A",AlterVon,"-",AlterBis) as AG from SterbefaelleWocheBev where Kw <> 53 and Jahr <= ', BisJahr + 1, ' ;')
 
@@ -131,15 +137,15 @@ for ( G in c('Frauen', 'Männer') ) {
     EX$SD[i] <- sqrt(EX$SD[i]^2 + sum( ( (FC$upper[,2]-FC$mean) / 2 * fcdata$Einwohner[fcdata$Jahr > BisJahr] )^2 ) )
     
     fcdata %>% filter( Jahr >= BisJahr ) %>% ggplot() +
-      geom_line( aes( x = Datum, y = Gestorbene, colour = 'Gestorbene'), size = 2 ) +
-      geom_line( aes( x = Datum, y = forecast * Einwohner, colour = 'Forecast fitted' ) , size = 1 ) +
+      geom_line( aes( x = Datum, y = Gestorbene, colour = 'Gestorbene'), linewidth = 2 ) +
+      geom_line( aes( x = Datum, y = forecast * Einwohner, colour = 'Forecast fitted' ) , linewidth = 1 ) +
       geom_line( data = fcdata %>% filter ( Jahr > BisJahr ),aes( x = Datum, y = upper * Einwohner, colour = 'Forecast Upper (80 %)' ), linetype = 'dotted' ) +
       geom_line( data = fcdata %>% filter ( Jahr > BisJahr ),aes( x = Datum, y = lower * Einwohner, colour = 'Forecast Lower (80 %)' ), linetype = 'dotted' ) +
       geom_ribbon( data = fcdata %>% filter ( Jahr > BisJahr ),aes( x = Datum, ymin=lower * Einwohner, ymax = upper * Einwohner), alpha = 0.2)  +
       scale_x_date( date_labels = "%Y-%b", guide = guide_axis( angle = 90 ) ) +
       scale_y_continuous(labels=function(x) format( x, big.mark = ".", decimal.mark= ',', scientific = FALSE ) ) +
       theme_ipsum() +
-      labs(  title = paste( 'Sterbefälle / geschätzte Sterbefälle anhand Wochensterberate', G, '\nAlter ', A, '\nKw 1/', BisJahr + 1, ' bis Kw ', mWoche,'/', mJahr , sep = '')
+      labs(  title = paste( 'Sterbefälle / geschätzte Sterbefälle anhand Wochensterberate ', G, '\nAlter ', A, '\nKw 1/', BisJahr + 1, ' bis Kw ', mWoche,'/', mJahr , sep = '')
              , subtitle = paste( 'Zeitreihe von' , AbJahr, 'bis', BisJahr )
              , axis.text.x = element_text( angle = -90, hjust = 0 )
              , x = "Jahr / Kalenderwoche"
@@ -179,7 +185,7 @@ EX %>% ggplot(
          , y = 'Übersterblichkeit'
          , caption = citation ) -> POverview
 
-ggsave(paste( outdir, 'EM_Woche_Overview_', BisJahr, '_' , mJahr, '.png', sep='')
+ggsave(  paste( outdir, 'EM_Woche_Overview_', BisJahr, '_' , mJahr, '.png', sep='')
        , plot = POverview
        , device = "png"
        , bg = "white"
@@ -189,6 +195,6 @@ ggsave(paste( outdir, 'EM_Woche_Overview_', BisJahr, '_' , mJahr, '.png', sep=''
        , dpi = 144
 )
 
-print(EX)
+write.csv( EX, file = paste( outdir, 'EM_Woche_Overview_', BisJahr, '_' , mJahr, '.csv', sep=''), row.names = FALSE )
 
 }

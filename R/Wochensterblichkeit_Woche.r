@@ -44,7 +44,6 @@ require(data.table)
 
 source("R/lib/myfunctions.r")
 source("R/lib/sql.r")
-source("R/lib/color_palettes.r")
 
 outdir <- 'png/WochenSterblichkeit/' 
 dir.create( outdir , showWarnings = FALSE, recursive = TRUE, mode = "0777")
@@ -63,16 +62,18 @@ today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
 citation <- paste('© Thomas Arend,', year(today),'\nQuelle: © Statistisches Bundesamt (Destatis) Stand', heute)
 
-AG <- RunSQL( 'select distinct AlterVon, AlterBis from SterbefaelleWocheBev;')
+ThisKw <- 46
+
+AG <- RunSQL( 'select distinct AlterVon, AlterBis from SterbefaelleWocheBevX;')
 
 AbJahr <- 2018
 SQL1 <- paste( 
   'select Jahr, Kw, AlterVon, AlterBis, concat( "A",AlterVon,"-",AlterBis) as AG, Geschlecht, '
   , ' Gestorbene, Einwohner, Gestorbene/Einwohner * 100000 as Mortality' 
-  , 'from SterbefaelleWocheBev'
+  , 'from SterbefaelleWocheBevX'
   , 'where'
   , 'Jahr >=', AbJahr
-  , 'and Kw = 38'
+  , 'and Kw =', ThisKw
   ,';'
 )
 
@@ -101,14 +102,14 @@ for ( A in unique(WSterbefaelle$AG)) {
                        
                        ) +
     theme_ipsum() +
-    labs(  title = paste( 'Sterberate in der Kw 38 pro 100.000' )
+    labs(  title = paste( 'Sterberate in der Kw', ThisKw, 'pro 100.000' )
          , subtitle= paste('Altersgruppe ', A, '; Ab', AbJahr,'; Deutschland')
          , colour  = 'Geschlecht'
          , x = 'Altersgruppe'
          , y = 'Anzahl [1 / (Woche * 100.000)]'
          , caption = citation )
 
-  ggsave(  paste(outdir, 'W38-', AbJahr, '-', A, '.png', sep='')
+  ggsave(  paste(outdir, 'W',ThisKw,'-', AbJahr, '-', A, '.png', sep='')
          , device = "png"
          , bg = "white"
          , width = 1920

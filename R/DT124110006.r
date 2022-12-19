@@ -56,7 +56,7 @@ options(
   , max.print = 3000
 )
 
-outdir <- 'png/DT12411/' 
+outdir <- 'png/DT12411/0006/' 
 dir.create( outdir , showWarnings = TRUE, recursive = FALSE, mode = "0777")
 
 today <- Sys.Date()
@@ -80,6 +80,8 @@ for (J in c(2016)) {
       geom_smooth() + 
       scale_x_date( date_labels = "%Y" ) +
       scale_y_continuous( labels = function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE ) ) +
+
+      theme() +
       theme_ipsum() +
       labs(  title = paste("Einwohner Bundesrepublik Deutschland")
             , subtitle = paste(  "Alter " , A , 'Jahre')
@@ -88,12 +90,14 @@ for (J in c(2016)) {
             , y = "Einwohner"
             , caption = citation )  -> P
 
-    ggsave(   filename = paste(outdir, 'DT124110006_', J, '_', A, '.png', sep='')
+    ggsave(   filename = paste(outdir, J, '_', A, '.png', sep='')
             , plot = P
             , device = "png"
-            , bg = "white"
-            , width = 3840, height = 2160
+#            , bg = "white"
+            , width = 1920
+            , height = 1080
             , units = "px"
+            , dpi = 144
     )
 
   }

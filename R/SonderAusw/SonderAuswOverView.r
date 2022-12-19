@@ -64,16 +64,60 @@ heute <- format(today, "%d %b %Y")
 
 citation <- paste("© Thomas Arend, 2022\nQuellen: © Statistisches Bundesamt / WPP\nStand:", heute)
 
-  SQL <- paste('select * from OverViewWeekExcessMortality ;')
+
+scatter_plot <- function ( data, Zeitraum = 'Wochen') {
+  
+  print (Zeitraum)
+  
+  scatter <- data.table(
+    x = (data %>% filter (Methode == 'Absolut DESTATIS' & Jahr > 2004))$EM
+    , y = (data %>% filter (Methode == 'Standardisiert DESTATIS' & Jahr > 2004))$EM
+    
+  )
+  
+  print(scatter)
+  
+  ra <- lm(data = scatter, formula = y ~ x )
+  print(summary(ra))
+  
+  scatter %>% ggplot(
+    aes( x = x, y = y ) 
+  ) +
+    geom_abline(slope = 1, intercept = 0, color = 'red', linetype = 'dotted') +
+    geom_point() +
+    geom_smooth() +
+    scale_x_continuous( labels = scales::percent ) +
+    scale_y_continuous( labels = scales::percent ) +
+    theme_ipsum() +
+    theme(
+      axis.text.x = element_text( angle = 90,  hjust = 1, vjust = 0.5 )
+    ) +
+    labs(  title = paste('Vergleich der Methoden zur Bestimmung der ', Zeitraum,'-Sterblichkeit', sep = '')
+           , subtitle = 'Absolute und alters- und geschlechtsadjustierte Werte ab 2005'
+           , x = 'Absolute Übersterblichkeit'
+           , y = 'Adjustierte Übersterblichkeit [%]'
+           , caption = citation ) -> P
+  
+  return(P)
+  
+}  
+  
+#
+# Overview weekly excess mortality DEU
+#
+
+  # Retrieve data for MariaDB
+
+  SQL <- paste('select * from WeeklyExcessMortality ;')
   data <- RunSQL( SQL )
 
   data$Woche <- factor(data$Kw, levels = 1:53, labels = paste( 'Kalenderwoche', 1:53 ) )
 
   data %>% filter ( Jahr > 2018 ) %>% ggplot(
-    aes( x = Kw, y = EM, group = Methode, colour = Methode ) 
-    ) +
-    geom_line() +
-    geom_point() +
+    
+  ) +
+    geom_line(aes( x = Kw, y = EM, group = Methode, colour = paste(Quelle, Adjustiert, Methode) ) ) +
+    geom_point(aes( x = Kw, y = EM, group = Methode, colour = Methode ) ) +
     scale_y_continuous( labels = scales::percent ) +
     facet_wrap(vars(Jahr)) +
     theme_ipsum() +
@@ -85,17 +129,33 @@ citation <- paste("© Thomas Arend, 2022\nQuellen: © Statistisches Bundesamt / 
            , x = 'Kalenderwoche'
            , y = 'Unter- / Übersterblichkeit [%]'
            , caption = citation ) -> POverview1
+
+  
+  PScatter1 <- scatter_plot(data, 'Wochen')  
+
+  #
+  # Overview monthly excess mortality DEU
+  #
+  
+  # Retrieve data for MariaDB
   
   SQL <- paste('select * from OverViewMonthExcessMortality ;')
   data <- RunSQL( SQL )
   
   data$Monate <- factor(data$Monat, levels = 1:12, labels = Monate )
   
+  #
+  # Plot diagram
+  #
+  
   data %>%  filter ( Jahr > 2018 ) %>% ggplot(
-    aes( x = Monate, y = EM, group = Methode, colour = Methode ) 
+    
   ) +
-    geom_line() +
-    geom_point() +
+    geom_line(aes( x = Monate, y = EM, group = Methode, colour = Methode ) ) +
+    geom_point(aes( x = Monate, y = EM, group = Methode, colour = Methode ) ) +
+    geom_line(aes( x = Monate, y = EM2, group = Methode, colour = Methode ), linetype = 'dotted' ) +
+    geom_point(aes( x = Monate, y = EM2, group = Methode, colour = Methode ) ) +
+    geom_abline(slope = 1, intercept = 0, color = 'red', linetype = 'dotted') +
     scale_y_continuous( labels = scales::percent ) +
     facet_wrap(vars(Jahr)) +
     theme_ipsum() +
@@ -108,16 +168,30 @@ citation <- paste("© Thomas Arend, 2022\nQuellen: © Statistisches Bundesamt / 
            , y = 'Unter- / Übersterblichkeit [%]'
            , caption = citation ) -> POverview2
 
+  PScatter2 <- scatter_plot(data, 'Monats')  
+  
+  #
+  # Overview yearly excess mortality DEU
+  #
+  
+  # Retrieve data for MariaDB
+  
   SQL <- paste('select * from OverViewYearExcessMortality ;')
   data <- RunSQL( SQL )
   
   data$Jahre <- factor(data$Jahr, levels = 2000:2022, labels = 2000:2022 )
+
+  #
+  # Plot diagram
+  #
   
   data %>%  filter (Jahr > 2004) %>% ggplot(
-    aes( x = Jahre, y = EM, group = Methode, colour = Methode ) 
+  
   ) +
-    geom_line() +
-    geom_point() +
+    geom_line(aes( x = Jahre, y = EM, group = Methode, colour = Methode ) ) +
+    geom_point(aes( x = Jahre, y = EM, group = Methode, colour = Methode ) ) +
+    geom_line(aes( x = Jahre, y = EM2, group = Methode, colour = Methode ), linetype = 'dotted' ) +
+    geom_point(aes( x = Jahre, y = EM2, group = Methode, colour = Methode ) ) +
     scale_y_continuous( labels = scales::percent ) +
     theme_ipsum() +
     theme(
@@ -129,29 +203,59 @@ citation <- paste("© Thomas Arend, 2022\nQuellen: © Statistisches Bundesamt / 
            , y = 'Unter- / Übersterblichkeit [%]'
            , caption = citation ) -> POverview3
   
+  PScatter3 <- scatter_plot(data, 'Jahres')  
+  
 #  POverview <- POverview1 / POverview2 + plot_annotation( title = "Geschätzte Über- / Untersterblichkeit 2022 - Kalenderwochen") 
   
   ggsave(paste( outdir, 'Overview_Wochen.png', sep='')
          , plot = POverview1
          , device = "png"
          , bg = "white"
-         , width = 3840, height = 2160
+         , width = 1920, height = 1080
          , units = "px"
+         , dpi = 144
   )
   
   ggsave(paste( outdir, 'Overview_Monate.png', sep='')
          , plot = POverview2
          , device = "png"
          , bg = "white"
-         , width = 3840, height = 2160
+         , width = 1920, height = 1080
          , units = "px"
+         , dpi = 144
   )
   
   ggsave(paste( outdir, 'Overview_Jahr.png', sep='')
          , plot = POverview3
          , device = "png"
          , bg = "white"
-         , width = 3840, height = 2160
+         , width = 1920, height = 1080
          , units = "px"
+         , dpi = 144
   )
   
+  ggsave(paste( outdir, 'Scatter_Week.png', sep='')
+         , plot = PScatter1
+         , device = "png"
+         , bg = "white"
+         , width = 1920, height = 1080
+         , units = "px"
+         , dpi = 144
+  )
+
+  ggsave(paste( outdir, 'Scatter_Month.png', sep='')
+         , plot = PScatter2
+         , device = "png"
+         , bg = "white"
+         , width = 1920, height = 1080
+         , units = "px"
+         , dpi = 144
+  )
+  ggsave(paste( outdir, 'Scatter_Year.png', sep='')
+         , plot = PScatter3
+         , device = "png"
+         , bg = "white"
+         , width = 1920, height = 1080
+         , units = "px"
+         , dpi = 144
+  )

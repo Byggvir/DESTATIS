@@ -61,37 +61,49 @@ options(
 
 today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
-citation <- paste("© Thomas Arend, 2021-2022\nQuelle: © Statistisches Bundesamt (Destatis), 2022\nStand:", heute)
+citation <- paste("© Thomas Arend, 2021-2022\nQuelle: © Statistisches Bundesamt (Destatis), WPP 2022\nStand:", heute)
 
 
-SQL <- 'select Jahr, Monat, Geschlecht, AlterVon, Gestorbene / Einwohner * 1000000 as Sterberate from SterbefaelleMonatBev ;'
+SQL <- 'select Jahr, Monat, Geschlecht, AlterVon, AlterBis, Gestorbene / Einwohner * 1000000 as Sterberate from SterbefaelleMonatBevX ;'
 
 Sterbefaelle <- RunSQL( SQL )
 Sterbefaelle$Geschlecht <- factor(Sterbefaelle$Geschlecht,levels = c( 'F','M'), labels = c('Frauen','Männer'))
 Sterbefaelle$Jahre <- factor(Sterbefaelle$Jahr, levels = unique( Sterbefaelle$Jahr ), labels = unique( Sterbefaelle$Jahr ) )
 Sterbefaelle$Monate <- factor(Sterbefaelle$Monat, levels = 1:12, labels = Monate)
-Sterbefaelle$Alter <- factor(Sterbefaelle$AlterVon)
 
+AV <- unique(Sterbefaelle$AlterVon)
+AB <- unique(Sterbefaelle$AlterBis)
 
+Sterbefaelle$Alter <- factor( Sterbefaelle$AlterVon, levels = AV, labels = paste (AV, '-', AB ))
 
-Sterbefaelle %>% filter( Monat == 9 ) %>% ggplot(
-  aes( x = Alter, y = Sterberate)) +
+ThisMonth <- month(today) - 1
+
+ra <- lm ( data = Sterbefaelle %>% filter( Monat == ThisMonth & Geschlecht == 'Männer'), formula = log(Sterberate) ~ AlterBis )
+print(summary(ra))
+
+  
+Sterbefaelle %>% filter( Monat == ThisMonth ) %>% ggplot(
+# Sterbefaelle %>% filter( Monat == 9 & AlterVon > 14 & AlterVon < 45) %>% ggplot(
+    aes( x = Alter, y = Sterberate)) +
   geom_boxplot(aes(fill = Geschlecht ), alpha = 0.5) +
   # geom_point(data = Sterbefaelle %>% filter(Jahr ==2022 & Monat == 9 )
   #            , aes( x = Alter, y = Sterberate, colour = Geschlecht )
   #            , size = 2) +
-#  expand_limits( y = 0 ) +
-  facet_wrap(vars(Geschlecht,Monate), ncol = 4) +
+  expand_limits( y = 0 ) +
+  facet_wrap(vars(Geschlecht), ncol = 2) +
   theme_ipsum() +
+  theme(
+    axis.text.x = element_text( angle = 90, vjust = 0.5) 
+  ) +
+  scale_y_continuous( labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
   labs(  title = paste("Sterbefälle pro Monat pro 1 Mio Einwohner")
-         , subtitle= paste("Deutschland von", min(Sterbefaelle$Jahr), "bis", max(Sterbefaelle$Jahr))
+         , subtitle= paste("Deutschland von", min(Sterbefaelle$Jahr), "bis", max(Sterbefaelle$Jahr),' Monat', Monate[ThisMonth])
          , colour  = "Geschlecht"
-         , x = "Alter ab"
+         , x = "Altersband"
          , y = "Anzahl [1/(Monat*1.000.000)]"
-         , caption = citation ) +
-  scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp6
+         , caption = citation )  -> pp6
 
-ggsave(  filename =  paste( outdir, fPrefix, '.png', sep='')
+ggsave(  filename =  paste( outdir, fPrefix,'-',Monate[ThisMonth], '.png', sep='')
          , device = "png"
          , bg = "white"
          , width = 1920
@@ -112,15 +124,15 @@ Sterbefaelle %>% filter( AlterVon == AG[a] ) %>% ggplot(
              , aes( x = Monate, y = Sterberate, colour = Jahre )
              , size = 2 ) +
 #  expand_limits( y = 0 ) +
+  scale_y_continuous( labels = function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
   facet_wrap(vars(Geschlecht), nrow = 2) +
   theme_ipsum() +
-  labs(  title = paste("Sterbefälle pro Monat pro 1 Mio Einwohner Alter von ", AG[a], 'bis', BG[a])
-         , subtitle= paste("Deutschland von", min(Sterbefaelle$Jahr), "bis", max(Sterbefaelle$Jahr))
+  labs(  title = paste('Sterbefälle pro Monat pro 1 Mio Einwohner Alter von ', AG[a], 'bis', BG[a])
+         , subtitle= paste("Deutschland von", min(Sterbefaelle$Jahr), "bis", max(Sterbefaelle$Jahr) )
          , colour  = "Jahr"
-         , x = "Alter"
+         , x = "Monat"
          , y = "Anzahl [1/(Monat*1.000.000)]"
-         , caption = citation ) +
-  scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) -> pp6
+         , caption = citation ) -> pp6
 
 ggsave(  filename =  paste( outdir, fPrefix, '_', AG[a],'-', BG[a], '.png', sep='')
          , device = "png"

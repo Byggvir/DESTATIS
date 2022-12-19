@@ -63,19 +63,21 @@ today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
 citation <- paste('© Thomas Arend,', year(today),'\nQuelle: © Statistisches Bundesamt (Destatis) Stand', heute)
 
-AG <- RunSQL( 'select distinct AlterVon, AlterBis from SterbefaelleWocheBev;')
+AG <- RunSQL( 'select distinct AlterVon, AlterBis from SterbefaelleWocheBevX;')
 
 AbJahr <- 2000
 SQL1 <- paste( 
   'select Jahr, Kw, AlterVon, AlterBis, Geschlecht, '
   , ' Gestorbene, Einwohner, Gestorbene/Einwohner * 100000 as Mortality' 
-  , 'from SterbefaelleWocheBev'
+  , 'from SterbefaelleWocheBevX'
   , 'where'
   , 'Jahr >=', AbJahr
   ,';'
 )
 
 WSterbefaelle <- RunSQL( SQL1 )
+
+ThisKw = 46
 
 WSterbefaelle$Geschlechter <- factor(WSterbefaelle$Geschlecht, levels = c('F','M'), labels = c('Frauen','Männer' ))
 WSterbefaelle$Jahre <- factor( WSterbefaelle$Jahr, levels = unique(WSterbefaelle$Jahr), labels = unique(WSterbefaelle$Jahr))
@@ -84,20 +86,20 @@ for (i in 1:nrow(AG) ) {
   
 Alter <- c(AG[i,])
 
-WSterbefaelle %>% filter( AlterVon == Alter[1] & AlterBis == Alter[2] & Kw == 38 ) %>% ggplot(
+WSterbefaelle %>% filter( AlterVon == Alter[1] & AlterBis == Alter[2] & Kw == ThisKw ) %>% ggplot(
   aes( x = Einwohner, y = Gestorbene, group = Kw )) +
   geom_point( ) +
-  geom_point( data = WSterbefaelle %>% filter( AlterVon == Alter[1] & AlterBis == Alter[2] & Kw == 38 & Jahr == 2022 ), size = 3, color = 'blue' ) +
+  geom_point( data = WSterbefaelle %>% filter( AlterVon == Alter[1] & AlterBis == Alter[2] & Kw == ThisKw & Jahr == 2022 ), size = 3, color = 'blue' ) +
   
   # expand_limits( y = 0 ) +
   scale_x_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
   facet_wrap(vars(Geschlechter), ncol = 1) +
   theme_ipsum() +
-  labs(  title = paste( 'Sterbefälle in der Woche Kw 38' )
+  labs(  title = paste( 'Sterbefälle in der Woche Kw', ThisKw )
          , subtitle= paste( 'Alter von', Alter[1], 'bis' , Alter[2], 'Jahre')
          , colour  = 'Jahr'
-         , x = 'Woche'
+         , x = 'Einwohnwer'
          , y = 'Anzahl'
          , caption = citation )
 

@@ -56,7 +56,7 @@ options(
   , max.print = 3000
 )
 
-outdir <- 'png/SonderAusw/Median/' 
+outdir <- 'png/SonderAusw/Week/' 
 dir.create( outdir , showWarnings = FALSE, recursive = FALSE, mode = "0777")
 
 today <- Sys.Date()
@@ -65,6 +65,91 @@ heute <- format(today, "%d %b %Y")
 citation <- paste("© Thomas Arend, 2022\nQuelle: © Statistisches Bundesamt /WPP\nStand:", heute)
 
 ForYear = 2022
+
+vergleich <- function (data, method = 'DESTATIS', title = 'Rohdaten DESTATIS' ) {
+  
+  data$Geschlechter <- factor(data$Geschlecht,levels = c( 'F','M'), labels = c('Frauen','Männer'))
+  data$Woche <- factor(data$Kw, levels = 1:53, labels = 1:53 )
+  data$AG <- factor( data$AlterVon
+                     , levels = unique(data$AlterVon)
+                     , labels = paste('A', unique(data$AlterVon), '-A', unique(data$AlterBis),sep ='') 
+  )
+  mKw <- max((data %>% filter (Jahr == ForYear))$Kw)
+  
+  data %>% filter( Jahr > 2004 ) %>% ggplot() +
+    geom_point( aes (x = Mittelwert, y = Gestorbene, colour = AG, group = AG ), alpha = 0.1 ) +
+    coord_fixed( ratio = 1 ) +
+    scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
+    facet_wrap( vars(Geschlechter)) +
+    theme_ipsum() +
+    theme(
+      axis.text.x = element_text( angle = 90, vjust = 0.5, hjust = 0.5 )
+    ) +
+    labs(  title = paste('Vergleich Mittelwert - Gestorbene' )
+           , subtitle = paste( 'Wochen -', title )
+           , x = 'Mittelwert'
+           , y = 'Gestorbene'
+           , caption = citation
+    ) -> PVergleich1
+  
+  
+  data %>% filter( Jahr > 2004 ) %>% ggplot() +
+    geom_point( aes (x = Median, y = Gestorbene, colour = AG, group = AG ), alpha = 0.1 ) +
+    coord_fixed( ratio = 1 ) +
+    scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
+    facet_wrap( vars(Geschlechter)) +
+    theme_ipsum() +
+    theme(
+      axis.text.x = element_text( angle = 90, vjust = 0.5, hjust = 0.5 )
+    ) +
+    labs(  title = paste('Vergleich Median - Gestorbene' )
+           , subtitle = paste( 'Wochen -', title )
+           , x = 'Median'
+           , y = 'Gestorbene'
+           , caption = citation
+    ) -> PVergleich2
+  
+  data %>% filter( Jahr > 2004 ) %>% ggplot() +
+    geom_point( aes (x = Mittelwert, y = Median, colour = AG, group = AG ), alpha = 0.1 ) +
+    coord_fixed( ratio = 1 ) +
+    scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
+    facet_wrap( vars(Geschlechter)) +
+    theme_ipsum() +
+    theme(
+      axis.text.x = element_text( angle = 90, vjust = 0.5, hjust = 0.5 )
+    ) +
+    labs(  title = paste('Vergleich Mittelwert - Median' )
+           , subtitle = paste( 'Wochen -', title )
+           , x = 'Mittelwert'
+           , y = 'Median'
+           , caption = citation
+    ) -> PVergleich3
+  
+  ggsave(paste( outdir, 'V_', method,'-1.png', sep='')
+         , plot = PVergleich1
+         , device = "png"
+         , bg = "white"
+         , width = 3840, height = 2160
+         , units = "px"
+  )
+
+  ggsave(paste( outdir, 'V_', method,'-2.png', sep='')
+         , plot = PVergleich2
+         , device = "png"
+         , bg = "white"
+         , width = 3840, height = 2160
+         , units = "px"
+  )
+  ggsave(paste( outdir, 'V_', method,'-3.png', sep='')
+         , plot = PVergleich3
+         , device = "png"
+         , bg = "white"
+         , width = 3840, height = 2160
+         , units = "px"
+  )
+  
+   
+}
 
 diagramme <- function (data, method = 'DESTATIS', title = 'Rohdaten DESTATIS' ) {
   
@@ -76,8 +161,55 @@ diagramme <- function (data, method = 'DESTATIS', title = 'Rohdaten DESTATIS' ) 
                        )
   mKw <- max((data %>% filter (Jahr == ForYear))$Kw)
   
+  data %>% filter( Jahr > 2004 ) %>% ggplot() +
+    geom_point( aes (x = Mittelwert, y = Gestorbene, colour = AG, group = AG ), alpha = 0.1 ) +
+    coord_equal() + 
+    scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
+    facet_wrap( vars(Geschlechter)) +
+    theme_ipsum() +
+    theme(
+      axis.text.x = element_text( angle = 90, vjust = 0.5, hjust = 0.5 )
+    ) +
+    labs(  title = paste('Vergleich Mittelwert - Gestorbene' )
+           , subtitle = 'Wochen'
+           , x = 'Mittelwert'
+           , y = 'Gestorbene'
+           , caption = citation
+    ) -> PVergleich1
+  
+  
+  data %>% filter( Jahr > 2004 ) %>% ggplot() +
+    geom_point( aes (x = Median, y = Gestorbene, colour = AG, group = AG ), alpha = 0.1 ) +
+    coord_equal() + 
+    scale_y_continuous(labels=function(x) format(x, big.mark = ".", decimal.mark= ',', scientific = FALSE)) +
+    facet_wrap( vars(Geschlechter)) +
+    theme_ipsum() +
+    theme(
+      axis.text.x = element_text( angle = 90, vjust = 0.5, hjust = 0.5 )
+    ) +
+    labs(  title = paste('Vergleich Median - Gestorbene' )
+           , subtitle= 'Wochen'
+           , x = 'Mittelwert'
+           , y = 'Median'
+           , caption = citation
+    ) -> PVergleich2
+  
+  PV <- grid.arrange(PVergleich1, PVergleich2, ncol = 2, top = textGrob(title ,gp=gpar(fontsize=18, font=3)))
+  
+  ggsave(paste( outdir, 'Vergleich', method,'.png', sep='')
+         , plot = PV
+         , device = "png"
+         , bg = "white"
+         , width = 3840, height = 2160
+         , units = "px"
+  )
+
+#
+#
+#
+  
   data %>% filter( Kw == mKw & Jahr == ForYear ) %>% ggplot(
-    aes( x = AG, y = AbsExcessMortality, fill = Geschlechter )) +
+    aes( x = AG, y = AbsExcessMortality2, fill = Geschlechter )) +
     geom_bar(  stat="identity"
              , color="black"
              , position=position_dodge() 
@@ -96,7 +228,7 @@ diagramme <- function (data, method = 'DESTATIS', title = 'Rohdaten DESTATIS' ) 
            , caption = citation ) -> POverview1
   
   data %>% filter( Kw == mKw & Jahr == ForYear ) %>% ggplot(
-    aes( x = AG, y = RelExcessMortality, fill = Geschlechter )) +
+    aes( x = AG, y = RelExcessMortality2, fill = Geschlechter )) +
     geom_bar(  stat="identity"
                , color="black"
                , position=position_dodge() 
@@ -117,7 +249,7 @@ diagramme <- function (data, method = 'DESTATIS', title = 'Rohdaten DESTATIS' ) 
   
   POverview <- POverview1 + POverview2 + plot_annotation( title = paste("Geschätzte Über- / Untersterblichkeit", ForYear, "- Kalenderwoche", mKw )) 
   
-  ggsave(  filename = paste( outdir, 'SonderAusw_W', ForYear, '_', method,'.png', sep='')
+  ggsave(  filename = paste( outdir, 'W', ForYear, '_', method,'.png', sep='')
          , plot = POverview
          , device = "png"
          , bg = "white"
@@ -131,7 +263,7 @@ diagramme <- function (data, method = 'DESTATIS', title = 'Rohdaten DESTATIS' ) 
   for (a in 1:length(Altersgruppen) ) {
     
     data %>% filter( AlterVon == Alter[a] & Jahr == ForYear) %>% ggplot(
-      aes( x = Woche, y = AbsExcessMortality, fill = Geschlechter )) +
+      aes( x = Woche, y = AbsExcessMortality , fill = Geschlechter )) +
       geom_bar(  stat="identity"
                  , color="black"
                  , position=position_dodge() 
@@ -150,7 +282,7 @@ diagramme <- function (data, method = 'DESTATIS', title = 'Rohdaten DESTATIS' ) 
 
     
     data %>% filter( AlterVon == Alter[a] & Jahr == ForYear) %>% ggplot(
-      aes( x = Woche, y = RelExcessMortality, fill = Geschlechter )) +
+      aes( x = Woche, y = RelExcessMortality , fill = Geschlechter )) +
       geom_bar(  stat="identity"
                  , color="black"
                  , position=position_dodge() 
@@ -168,7 +300,7 @@ diagramme <- function (data, method = 'DESTATIS', title = 'Rohdaten DESTATIS' ) 
              , caption = citation ) -> POverview2
     
     POverview <- POverview1 + POverview2 + plot_annotation( title = paste("Geschätzte Über- / Untersterblichkeit", ForYear)) 
-    ggsave(paste( outdir, 'SonderAusw_W', ForYear, '_', method, '_', Altersgruppen[a], '.png', sep='')
+    ggsave(paste( outdir, 'W', ForYear, '_', method, '_', Altersgruppen[a], '.png', sep='')
            , plot = POverview
            , device = "png"
            , bg = "white"
@@ -178,17 +310,25 @@ diagramme <- function (data, method = 'DESTATIS', title = 'Rohdaten DESTATIS' ) 
   }
 }
 
+print ('DESTATIS')
 SQL <- paste('select * from ExcessMortalityWeekDESTATIS ;')
-data <- RunSQL( SQL )
+EM <- RunSQL( SQL )
 
-diagramme(data, method = 'DESTATIS', title = 'Rohdaten DESTATS')
+vergleich(EM, method = 'DESTATIS', title = 'Absolute Sterbefälle der vier Vorjahre')
+diagramme(EM, method = 'DESTATIS', title = 'Median der absoluten Sterbefälle der vier Vorjahre')
+
+print ('Normalisierd')
 
 SQL <- paste('select * from ExcessMortalityWeekNormalised ;')
-data <- RunSQL( SQL )
+EM <- RunSQL( SQL )
 
-diagramme(data, method = 'Std', title = paste('Sterbefälle der vier Vorjahre nach DESTATIS auf',ForYear,'umgerechnet'))
+vergleich(EM, method = 'Std', title = paste('Normierte Sterbefällen der vier Vorjahre DESTATIS' ) )
+diagramme(EM, method = 'Std', title = paste( 'Median der auf', ForYear, 'normierten Sterbefällen der vier Vorjahre DESTATIS' ) )
+
+print ('WPP')
 
 SQL <- paste('select * from ExcessMortalityWeekWPP ;')
-data <- RunSQL( SQL )
+EM <- RunSQL( SQL )
 
-diagramme(data, method = 'WPP', title = paste('Sterbefälle der vier Vorjahre nach WPP auf',ForYear,'umgerechnet'))
+vergleich(EM, method = 'WPP', title = paste( 'Normierte Sterbefällen der vier Vorjahre WPP' ))
+diagramme(EM, method = 'WPP', title = paste( 'Median der auf', ForYear, 'normierten Sterbefällen der vier Vorjahre WPP' ))

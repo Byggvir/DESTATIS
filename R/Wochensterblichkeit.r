@@ -63,13 +63,13 @@ today <- Sys.Date()
 heute <- format(today, "%d %b %Y")
 citation <- paste('© Thomas Arend,', year(today),'\nQuelle: © Statistisches Bundesamt (Destatis) Stand', heute)
 
-AG <- RunSQL( 'select distinct AlterVon, AlterBis from SterbefaelleWocheBev;')
+AG <- RunSQL( 'select distinct AlterVon, AlterBis from SterbefaelleWocheBevX;')
 
 AbJahr <- 2000
 SQL1 <- paste( 
   'select Jahr, Kw, AlterVon, AlterBis, Geschlecht, '
   , ' Gestorbene/Einwohner * 100000 as Mortality' 
-  , 'from SterbefaelleWocheBev'
+  , 'from SterbefaelleWocheBevX'
   , 'where'
   , 'Jahr >=', AbJahr
   ,';'
